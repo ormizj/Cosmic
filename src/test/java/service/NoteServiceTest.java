@@ -46,8 +46,8 @@ class NoteServiceTest {
         verify(noteDao).save(noteCaptor.capture());
         var note = noteCaptor.getValue();
         assertEquals(message, note.message());
-        assertEquals(from, note.from());
-        assertEquals(to, note.to());
+        assertEquals(from, note.sender());
+        assertEquals(to, note.receiver());
         assertEquals(0, note.fame());
     }
 
@@ -64,8 +64,8 @@ class NoteServiceTest {
         verify(noteDao).save(noteCaptor.capture());
         var note = noteCaptor.getValue();
         assertEquals(message, note.message());
-        assertEquals(from, note.from());
-        assertEquals(to, note.to());
+        assertEquals(from, note.sender());
+        assertEquals(to, note.receiver());
         assertEquals(1, note.fame());
     }
 
