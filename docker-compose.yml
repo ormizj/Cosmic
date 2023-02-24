@@ -4,6 +4,7 @@ services:
     build: .
     depends_on:
       - db
+      - pg_db
     ports:
       # Login server
       - "8484:8484"
@@ -19,6 +20,7 @@ services:
       - ./wz:/opt/server/wz
     environment:
       DB_HOST: "db"
+      PG_DB_HOST: "pg_db"
     
   db:
     image: mysql:8.0.23
@@ -30,3 +32,11 @@ services:
     volumes:
       - ./database/docker-db-data:/var/lib/mysql
       - ./database/sql:/docker-entrypoint-initdb.d
+
+  pg_db:
+    image: postgres:15.0
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./database/docker-pg-db-data:/var/lib/postgresql/data
+      - ./database/postgres-scripts:/docker-entrypoint-initdb.d

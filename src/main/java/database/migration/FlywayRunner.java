@@ -16,6 +16,8 @@ public class FlywayRunner {
                 .dataSource(dbConfig.getJdbcUrl(), dbConfig.adminUsername(), dbConfig.adminPassword())
                 .schemas(dbConfig.schema())
                 .createSchemas(true)
+                .connectRetries(10)
+                .connectRetriesInterval(5)
                 .load();
         flyway.migrate();
     }

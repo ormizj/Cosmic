@@ -935,8 +935,12 @@ public class Server {
 
     private PgDatabaseConfig readPgDbConfig() {
         final ServerConfig serverConfig = YamlConfig.config.server;
+        String pgDbHost = System.getenv("PG_DB_HOST");
+        if (pgDbHost == null) {
+            pgDbHost = serverConfig.PG_DB_HOST;
+        }
         return new PgDatabaseConfig(
-                serverConfig.PG_DB_NAME, serverConfig.PG_DB_HOST, serverConfig.PG_DB_SCHEMA,
+                serverConfig.PG_DB_NAME, pgDbHost, serverConfig.PG_DB_SCHEMA,
                 serverConfig.PG_DB_ADMIN_USERNAME, serverConfig.PG_DB_ADMIN_PASSWORD,
                 serverConfig.PG_DB_USERNAME, serverConfig.PG_DB_PASSWORD,
                 Duration.ofSeconds(serverConfig.INIT_CONNECTION_POOL_TIMEOUT)
