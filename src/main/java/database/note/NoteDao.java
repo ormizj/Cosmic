@@ -1,6 +1,7 @@
 package database.note;
 
 import database.DaoException;
+import database.PgDatabaseConnection;
 import model.Note;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiException;
@@ -10,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class NoteDao {
+    private final PgDatabaseConnection connection;
+
+    public NoteDao(PgDatabaseConnection connection) {
+        this.connection = connection;
+    }
 
     public void save(Note note) {
         try (Handle handle = DatabaseConnection.getHandle()) {

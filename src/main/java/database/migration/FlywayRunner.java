@@ -4,6 +4,8 @@ import database.PgDatabaseConfig;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 
+import java.util.Map;
+
 public class FlywayRunner {
     private final PgDatabaseConfig dbConfig;
 
@@ -18,6 +20,10 @@ public class FlywayRunner {
                 .createSchemas(true)
                 .connectRetries(10)
                 .connectRetriesInterval(5)
+                .placeholders(Map.of(
+                        "server-username", dbConfig.username(),
+                        "server-password", dbConfig.password())
+                )
                 .load();
         flyway.migrate();
     }

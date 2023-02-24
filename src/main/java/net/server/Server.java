@@ -31,6 +31,8 @@ import client.inventory.ItemFactory;
 import client.inventory.manipulator.CashIdGenerator;
 import client.newyear.NewYearCardRecord;
 import client.processor.npc.FredrickProcessor;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import config.ServerConfig;
 import config.YamlConfig;
 import constants.game.GameConstants;
@@ -38,6 +40,7 @@ import constants.inventory.ItemConstants;
 import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
 import database.PgDatabaseConfig;
+import database.PgDatabaseConnection;
 import database.migration.FlywayRunner;
 import database.note.NoteDao;
 import net.ChannelDependencies;
@@ -843,13 +846,15 @@ public class Server {
             Runtime.getRuntime().addShutdownHook(new Thread(shutdown(false)));
         }
 
-        runDatabaseMigration();
+        PgDatabaseConfig pgDbConfig = readPgDbConfig();
+        runDatabaseMigration(pgDbConfig);
+        PgDatabaseConnection pgDbConnection = createPgDbConnection(pgDbConfig);
 
         if (!DatabaseConnection.initializeConnectionPool()) {
             throw new IllegalStateException("Failed to initiate a connection to the database");
         }
 
-        channelDependencies = registerChannelDependencies();
+        channelDependencies = registerChannelDependencies(pgDbConnection);
 
         final ExecutorService initExecutor = Executors.newFixedThreadPool(10);
         // Run slow operations asynchronously to make startup faster
@@ -927,12 +932,6 @@ public class Server {
         }
     }
 
-    private void runDatabaseMigration() {
-        PgDatabaseConfig pgDbConfig = readPgDbConfig();
-        FlywayRunner flywayRunner = new FlywayRunner(pgDbConfig);
-        flywayRunner.migrate();
-    }
-
     private PgDatabaseConfig readPgDbConfig() {
         final ServerConfig serverConfig = YamlConfig.config.server;
         String pgDbHost = System.getenv("PG_DB_HOST");
@@ -947,8 +946,29 @@ public class Server {
         );
     }
 
-    private ChannelDependencies registerChannelDependencies() {
-        NoteService noteService = new NoteService(new NoteDao());
+    private void runDatabaseMigration(PgDatabaseConfig config) {
+        FlywayRunner flywayRunner = new FlywayRunner(config);
+        flywayRunner.migrate();
+    }
+
+    private PgDatabaseConnection createPgDbConnection(PgDatabaseConfig config) {
+        var hikariConfig = createHikariConfig(config);
+        var dataSource = new HikariDataSource(hikariConfig);
+        return new PgDatabaseConnection(dataSource);
+    }
+
+    private HikariConfig createHikariConfig(PgDatabaseConfig config) {
+        final HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(config.getJdbcUrl());
+        hikariConfig.setSchema(config.schema());
+        hikariConfig.setUsername(config.username());
+        hikariConfig.setPassword(config.password());
+        hikariConfig.setInitializationFailTimeout(config.poolInitTimeout().toMillis());
+        return hikariConfig;
+    }
+
+    private ChannelDependencies registerChannelDependencies(PgDatabaseConnection connection) {
+        NoteService noteService = new NoteService(new NoteDao(connection));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor);
 
