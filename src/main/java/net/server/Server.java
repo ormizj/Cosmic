@@ -31,11 +31,14 @@ import client.inventory.ItemFactory;
 import client.inventory.manipulator.CashIdGenerator;
 import client.newyear.NewYearCardRecord;
 import client.processor.npc.FredrickProcessor;
+import config.ServerConfig;
 import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.inventory.ItemConstants;
 import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
+import database.PgDatabaseConfig;
+import database.migration.FlywayRunner;
 import database.note.NoteDao;
 import net.ChannelDependencies;
 import net.PacketProcessor;
@@ -840,6 +843,8 @@ public class Server {
             Runtime.getRuntime().addShutdownHook(new Thread(shutdown(false)));
         }
 
+        runDatabaseMigration();
+
         if (!DatabaseConnection.initializeConnectionPool()) {
             throw new IllegalStateException("Failed to initiate a connection to the database");
         }
@@ -920,6 +925,22 @@ public class Server {
         for (Channel ch : this.getAllChannels()) {
             ch.reloadEventScriptManager();
         }
+    }
+
+    private void runDatabaseMigration() {
+        PgDatabaseConfig pgDbConfig = readPgDbConfig();
+        FlywayRunner flywayRunner = new FlywayRunner(pgDbConfig);
+        flywayRunner.migrate();
+    }
+
+    private PgDatabaseConfig readPgDbConfig() {
+        final ServerConfig serverConfig = YamlConfig.config.server;
+        return new PgDatabaseConfig(
+                serverConfig.PG_DB_NAME, serverConfig.PG_DB_HOST, serverConfig.PG_DB_SCHEMA,
+                serverConfig.PG_DB_ADMIN_USERNAME, serverConfig.PG_DB_ADMIN_PASSWORD,
+                serverConfig.PG_DB_USERNAME, serverConfig.PG_DB_PASSWORD,
+                Duration.ofSeconds(serverConfig.INIT_CONNECTION_POOL_TIMEOUT)
+        );
     }
 
     private ChannelDependencies registerChannelDependencies() {

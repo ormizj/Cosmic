@@ -165,6 +165,14 @@ server:
     DB_PASS: "snailshell"
     INIT_CONNECTION_POOL_TIMEOUT: 90    # Seconds
 
+    PG_DB_NAME: "cosmic"
+    PG_DB_HOST: "localhost"
+    PG_DB_SCHEMA: "cosmic"
+    PG_DB_ADMIN_USERNAME: "cosmic_admin"
+    PG_DB_ADMIN_PASSWORD: "redsnailshell"
+    PG_DB_USERNAME: "cosmic_server"
+    PG_DB_PASSWORD: "bluesnailshell"
+
     #Login Configuration
     WORLDS: 1                           #Initial number of worlds on the server.
     WLDLIST_SIZE: 21                    #Max possible worlds on the server.

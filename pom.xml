@@ -32,6 +32,8 @@
         <jcip-annotations.version>1.0</jcip-annotations.version> <!-- Annotations for concurrency documentation -->
         <HikariCP.version>5.0.1</HikariCP.version> <!-- Database connection pool -->
         <mysql-connector-java.version>8.0.30</mysql-connector-java.version> <!-- MySQL JDBC driver -->
+        <postgresql.version>42.5.4</postgresql.version> <!-- PostgreSQL JDBC driver -->
+        <flyway.version>9.15.1</flyway.version> <!-- Database migration -->
         <jdbi-version>3.35.0</jdbi-version> <!-- Convenience wrapper around JDBC -->
         <junit.version>5.9.0</junit.version> <!-- Unit test -->
         <mockito.version>4.7.0</mockito.version> <!-- Unit test -->
@@ -61,9 +63,19 @@
             <version>${mysql-connector-java.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
             <version>${jdbi-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
         </dependency>
 
 
