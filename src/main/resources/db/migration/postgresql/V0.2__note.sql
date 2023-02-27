@@ -8,4 +8,5 @@ CREATE TABLE note(
     deleted smallint NOT NULL,
     PRIMARY KEY (id)
 );
+CREATE INDEX idx_note_received ON note(receiver);
 GRANT SELECT, INSERT, UPDATE ON note TO ${server-username};
