@@ -33,18 +33,20 @@ public class NoteDao {
         }
     }
 
-    public List<Note> findAllByTo(String to) {
+    public List<Note> findAllByTo(String receiver) {
         try (Handle handle = connection.getHandle()) {
+            // Using LOWER as a workaround for notes not appearing when being sent to name with wrongly typed casing.
+            // Ideally, the character ids should be the identifier rather than name.
             return handle.createQuery("""
                             SELECT *
                             FROM note
                             WHERE deleted = 0
-                            AND receiver = ?""")
-                    .bind(0, to)
+                            AND LOWER(receiver) = LOWER(?)""")
+                    .bind(0, receiver)
                     .mapTo(Note.class)
                     .list();
         } catch (JdbiException e) {
-            throw new DaoException("Failed to find notes sent to: %s".formatted(to), e);
+            throw new DaoException("Failed to find notes sent to: %s".formatted(receiver), e);
         }
     }
 
