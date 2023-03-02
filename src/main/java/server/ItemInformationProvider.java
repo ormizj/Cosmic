@@ -1985,37 +1985,6 @@ public class ItemInformationProvider {
         }
     }
 
-    public Pair<String, Integer> getMakerReagentStatUpgrade(int itemId) {
-        try {
-            Pair<String, Integer> statUpgd = statUpgradeMakerCache.get(itemId);
-            if (statUpgd != null) {
-                return statUpgd;
-            } else if (statUpgradeMakerCache.containsKey(itemId)) {
-                return null;
-            }
-
-            try (Connection con = DatabaseConnection.getConnection();
-                 PreparedStatement ps = con.prepareStatement("SELECT stat, value FROM makerreagentdata WHERE itemid = ?")) {
-                ps.setInt(1, itemId);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String statType = rs.getString("stat");
-                        int statGain = rs.getInt("value");
-
-                        statUpgd = new Pair<>(statType, statGain);
-                    }
-                }
-            }
-
-            statUpgradeMakerCache.put(itemId, statUpgd);
-            return statUpgd;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public int getMakerCrystalFromLeftover(Integer leftoverId) {
         try {
             Integer itemid = mobCrystalMakerCache.get(leftoverId);

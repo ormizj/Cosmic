@@ -30,6 +30,7 @@ import client.inventory.Item;
 import client.inventory.ItemFactory;
 import client.inventory.manipulator.CashIdGenerator;
 import client.newyear.NewYearCardRecord;
+import client.processor.action.MakerProcessor;
 import client.processor.npc.FredrickProcessor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -41,6 +42,8 @@ import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
 import database.PgDatabaseConfig;
 import database.PgDatabaseConnection;
+import database.maker.MakerDao;
+import database.maker.MakerInfoProvider;
 import database.migration.FlywayRunner;
 import database.note.NoteDao;
 import net.ChannelDependencies;
@@ -969,8 +972,10 @@ public class Server {
 
     private ChannelDependencies registerChannelDependencies(PgDatabaseConnection connection) {
         NoteService noteService = new NoteService(new NoteDao(connection));
+        MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
-        ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor);
+        ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
+                makerProcessor);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

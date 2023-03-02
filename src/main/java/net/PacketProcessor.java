@@ -233,7 +233,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.REPORT, new ReportHandler());
         registerHandler(RecvOpcode.MONSTER_BOOK_COVER, new MonsterBookCoverHandler());
         registerHandler(RecvOpcode.AUTO_DISTRIBUTE_AP, new AutoAssignHandler());
-        registerHandler(RecvOpcode.MAKER_SKILL, new MakerSkillHandler());
+        registerHandler(RecvOpcode.MAKER_SKILL, new MakerSkillHandler(channelDeps.makerProcessor()));
         registerHandler(RecvOpcode.OPEN_FAMILY_PEDIGREE, new OpenFamilyPedigreeHandler());
         registerHandler(RecvOpcode.OPEN_FAMILY, new OpenFamilyHandler());
         registerHandler(RecvOpcode.ADD_FAMILY, new FamilyAddHandler());

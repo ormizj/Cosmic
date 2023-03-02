@@ -1,5 +1,6 @@
 package database;
 
+import database.maker.MakerReagentRowMapper;
 import database.note.NoteRowMapper;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -14,8 +15,14 @@ public class PgDatabaseConnection {
 
     public PgDatabaseConnection(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbi = Jdbi.create(dataSource)
-                .registerRowMapper(new NoteRowMapper()); // TODO: configure jdbi elsewhere
+        this.jdbi = Jdbi.create(dataSource);
+        registerRowMappers();
+        // TODO: configure jdbi elsewhere
+    }
+
+    private void registerRowMappers() {
+        jdbi.registerRowMapper(new NoteRowMapper())
+                .registerRowMapper(new MakerReagentRowMapper());
     }
 
     public Connection getConnection() throws SQLException {

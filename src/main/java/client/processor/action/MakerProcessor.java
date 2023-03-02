@@ -29,6 +29,8 @@ import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.id.ItemId;
 import constants.inventory.ItemConstants;
+import database.maker.MakerInfoProvider;
+import database.maker.MakerReagent;
 import net.packet.InPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +40,22 @@ import server.MakerItemFactory.MakerItemCreateEntry;
 import tools.PacketCreator;
 import tools.Pair;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ronan
  */
 public class MakerProcessor {
     private static final Logger log = LoggerFactory.getLogger(MakerProcessor.class);
-    private static final ItemInformationProvider ii = ItemInformationProvider.getInstance();
 
-    public static void makerAction(InPacket p, Client c) {
+    private final ItemInformationProvider ii = ItemInformationProvider.getInstance();
+    private final MakerInfoProvider infoProvider;
+
+    public MakerProcessor(MakerInfoProvider infoProvider) {
+        this.infoProvider = infoProvider;
+    }
+
+    public void makerAction(InPacket p, Client c) {
         if (c.tryacquireClient()) {
             try {
                 int type = p.readInt();
@@ -242,7 +247,7 @@ public class MakerProcessor {
     }
 
     // checks and prevents hackers from PE'ing Maker operations with invalid operations
-    private static boolean removeOddMakerReagents(int toCreate, Map<Integer, Short> reagentids) {
+    private boolean removeOddMakerReagents(int toCreate, Map<Integer, Short> reagentids) {
         Map<Integer, Integer> reagentType = new LinkedHashMap<>();
         List<Integer> toRemove = new LinkedList<>();
 
@@ -283,7 +288,7 @@ public class MakerProcessor {
         return true;
     }
 
-    private static int getMakerReagentSlots(int itemId) {
+    private int getMakerReagentSlots(int itemId) {
         try {
             int eqpLevel = ii.getEquipLevelReq(itemId);
 
@@ -299,7 +304,7 @@ public class MakerProcessor {
         }
     }
 
-    private static Pair<Integer, List<Pair<Integer, Integer>>> generateDisassemblyInfo(int itemId) {
+    private Pair<Integer, List<Pair<Integer, Integer>>> generateDisassemblyInfo(int itemId) {
         int recvFee = ii.getMakerDisassembledFee(itemId);
         if (recvFee > -1) {
             List<Pair<Integer, Integer>> gains = ii.getMakerDisassembledItems(itemId);
@@ -311,11 +316,11 @@ public class MakerProcessor {
         return null;
     }
 
-    public static int getMakerSkillLevel(Character chr) {
+    private int getMakerSkillLevel(Character chr) {
         return chr.getSkillLevel((chr.getJob().getId() / 1000) * 10000000 + 1007);
     }
 
-    private static short getCreateStatus(Client c, MakerItemCreateEntry recipe) {
+    private short getCreateStatus(Client c, MakerItemCreateEntry recipe) {
         if (recipe.isInvalid()) {
             return -1;
         }
@@ -358,7 +363,7 @@ public class MakerProcessor {
         return 0;
     }
 
-    private static boolean hasItems(Client c, MakerItemCreateEntry recipe) {
+    private boolean hasItems(Client c, MakerItemCreateEntry recipe) {
         for (Pair<Integer, Integer> p : recipe.getReqItems()) {
             int itemId = p.getLeft();
             if (c.getPlayer().getInventory(ItemConstants.getInventoryType(itemId)).countById(itemId) < p.getRight()) {
@@ -368,7 +373,7 @@ public class MakerProcessor {
         return true;
     }
 
-    private static boolean addBoostedMakerItem(Client c, int itemid, int stimulantid, Map<Integer, Short> reagentids) {
+    private boolean addBoostedMakerItem(Client c, int itemid, int stimulantid, Map<Integer, Short> reagentids) {
         if (stimulantid != -1 && !ItemInformationProvider.rollSuccessChance(90.0)) {
             return false;
         }
@@ -396,37 +401,32 @@ public class MakerProcessor {
             List<Short> randStat = new LinkedList<>();
 
             for (Map.Entry<Integer, Short> r : reagentids.entrySet()) {
-                Pair<String, Integer> reagentBuff = ii.getMakerReagentStatUpgrade(r.getKey());
-
-                if (reagentBuff != null) {
-                    String s = reagentBuff.getLeft();
-
-                    if (s.substring(0, 4).contains("rand")) {
-                        if (s.substring(4).equals("Stat")) {
-                            randStat.add((short) (reagentBuff.getRight() * r.getValue()));
-                        } else {
-                            randOption.add((short) (reagentBuff.getRight() * r.getValue()));
-                        }
+                Optional<MakerReagent> reagentBuff = infoProvider.getMakerReagent(r.getKey());
+                if (reagentBuff.isEmpty()) {
+                    continue;
+                }
+                String buffStat = reagentBuff.get().stat();
+                int buffValue = reagentBuff.get().value();
+                if (buffStat.substring(0, 4).contains("rand")) {
+                    if (buffStat.substring(4).equals("Stat")) {
+                        randStat.add((short) (buffValue * r.getValue()));
                     } else {
-                        String stat = s.substring(3);
+                        randOption.add((short) (buffValue * r.getValue()));
+                    }
+                } else {
+                    String stat = buffStat.substring(3);
 
-                        if (!stat.equals("ReqLevel")) {    // improve req level... really?
-                            switch (stat) {
-                                case "MaxHP":
-                                    stat = "MHP";
-                                    break;
+                    if (!stat.equals("ReqLevel")) {    // improve req level... really?
+                        switch (stat) {
+                            case "MaxHP" -> stat = "MHP";
+                            case "MaxMP" -> stat = "MMP";
+                        }
 
-                                case "MaxMP":
-                                    stat = "MMP";
-                                    break;
-                            }
-
-                            Integer d = stats.get(stat);
-                            if (d == null) {
-                                stats.put(stat, reagentBuff.getRight() * r.getValue());
-                            } else {
-                                stats.put(stat, d + (reagentBuff.getRight() * r.getValue()));
-                            }
+                        Integer d = stats.get(stat);
+                        if (d == null) {
+                            stats.put(stat, buffValue * r.getValue());
+                        } else {
+                            stats.put(stat, d + (buffValue * r.getValue()));
                         }
                     }
                 }
