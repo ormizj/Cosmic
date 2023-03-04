@@ -257,6 +257,10 @@ public class ItemId {
     public static final int ADVANCED_MONSTER_CRYSTAL_2 = 4260007;
     public static final int ADVANCED_MONSTER_CRYSTAL_3 = 4260008;
 
+    public static boolean isMonsterCrystal(int itemId) {
+        return itemId / 10000 == 426;
+    }
+
     // NPC weather (PQ)
     public static final int NPC_WEATHER_GROWLIE = 5120016; // Henesys PQ
 

@@ -2082,45 +2082,6 @@ public class ItemInformationProvider {
         return -1;
     }
 
-    public List<Pair<Integer, Integer>> getMakerDisassembledItems(Integer itemId) {
-        List<Pair<Integer, Integer>> items = new LinkedList<>();
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT req_item, count FROM makerrecipedata WHERE itemid = ? AND req_item >= 4260000 AND req_item < 4270000")) {
-            ps.setInt(1, itemId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    items.add(new Pair<>(rs.getInt("req_item"), rs.getInt("count") / 2));   // return to the player half of the crystals needed
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return items;
-    }
-
-    public int getMakerDisassembledFee(Integer itemId) {
-        int fee = -1;
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT req_meso FROM makercreatedata WHERE itemid = ?")) {
-            ps.setInt(1, itemId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {   // cost is 13.6363~ % of the original value, trim by 1000.
-                    float val = (float) (rs.getInt("req_meso") * 0.13636363636364);
-                    fee = (int) (val / 1000);
-                    fee *= 1000;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return fee;
-    }
-
     public Set<String> getWhoDrops(Integer itemId) {
         Set<String> list = new HashSet<>();
         try (Connection con = DatabaseConnection.getConnection();

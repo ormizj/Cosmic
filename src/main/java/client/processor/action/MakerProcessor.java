@@ -29,6 +29,7 @@ import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.id.ItemId;
 import constants.inventory.ItemConstants;
+import database.maker.MakerDisassemblyInfo;
 import database.maker.MakerInfoProvider;
 import database.maker.MakerReagent;
 import net.packet.InPacket;
@@ -85,14 +86,14 @@ public class MakerProcessor {
                     if (it != null && it.getItemId() == toCreate) {
                         toDisassemble = toCreate;
 
-                        Pair<Integer, List<Pair<Integer, Integer>>> pair = generateDisassemblyInfo(toDisassemble);
-                        if (pair != null) {
-                            recipe = MakerItemFactory.generateDisassemblyCrystalEntry(toDisassemble, pair.getLeft(), pair.getRight());
-                        } else {
+                        Optional<MakerDisassemblyInfo> disassemblyInfo = infoProvider.getDisassemblyInfo(toDisassemble);
+                        if (disassemblyInfo.isEmpty()) {
                             c.sendPacket(PacketCreator.serverNotice(1, ii.getName(toCreate) + " is unavailable for Monster Crystal disassembly."));
                             c.sendPacket(PacketCreator.makerEnableActions());
                             return;
                         }
+
+                        recipe = MakerItemFactory.generateDisassemblyCrystalEntry(toDisassemble, disassemblyInfo.get());
                     } else {
                         c.sendPacket(PacketCreator.serverNotice(1, "An unknown error occurred when trying to apply that item for disassembly."));
                         c.sendPacket(PacketCreator.makerEnableActions());
@@ -193,6 +194,7 @@ public class MakerProcessor {
                     default:
                         if (toDisassemble != -1) {
                             InventoryManipulator.removeFromSlot(c, InventoryType.EQUIP, (short) pos, (short) 1, false);
+                            // TODO: fix disassembly being free. The fee is never applied.
                         } else {
                             for (Pair<Integer, Integer> pair : recipe.getReqItems()) {
                                 c.getAbstractPlayerInteraction().gainItem(pair.getLeft(), (short) -pair.getRight(), false);
@@ -306,18 +308,6 @@ public class MakerProcessor {
         } catch (NullPointerException npe) {
             return 0;
         }
-    }
-
-    private Pair<Integer, List<Pair<Integer, Integer>>> generateDisassemblyInfo(int itemId) {
-        int recvFee = ii.getMakerDisassembledFee(itemId);
-        if (recvFee > -1) {
-            List<Pair<Integer, Integer>> gains = ii.getMakerDisassembledItems(itemId);
-            if (!gains.isEmpty()) {
-                return new Pair<>(recvFee, gains);
-            }
-        }
-
-        return null;
     }
 
     private int getMakerSkillLevel(Character chr) {

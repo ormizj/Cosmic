@@ -23,6 +23,7 @@ package server;
 
 import config.YamlConfig;
 import constants.inventory.EquipType;
+import database.maker.MakerDisassemblyInfo;
 import tools.Pair;
 
 import java.util.ArrayList;
@@ -64,12 +65,10 @@ public class MakerItemFactory {
         return ret;
     }
 
-    public static MakerItemCreateEntry generateDisassemblyCrystalEntry(int fromEquipid, int cost, List<Pair<Integer, Integer>> gains) {     // equipment at specific position already taken
-        MakerItemCreateEntry ret = new MakerItemCreateEntry(cost, 0, 1);
+    public static MakerItemCreateEntry generateDisassemblyCrystalEntry(int fromEquipid, MakerDisassemblyInfo disassemblyInfo) {     // equipment at specific position already taken
+        MakerItemCreateEntry ret = new MakerItemCreateEntry(disassemblyInfo.fee(), 0, 1);
         ret.addReqItem(fromEquipid, 1);
-        for (Pair<Integer, Integer> p : gains) {
-            ret.addGainItem(p.getLeft(), p.getRight());
-        }
+        disassemblyInfo.gainedItems().forEach(i -> ret.addGainItem(i.itemId(), i.count()));
         return ret;
     }
 

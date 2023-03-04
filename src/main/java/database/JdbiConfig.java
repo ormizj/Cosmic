@@ -1,5 +1,6 @@
 package database;
 
+import database.maker.MakerIngredientRowMapper;
 import database.maker.MakerReagentRowMapper;
 import database.maker.MakerRecipeRowMapper;
 import database.note.NoteRowMapper;
@@ -14,6 +15,7 @@ public final class JdbiConfig {
         return Jdbi.create(dataSource)
                 .registerRowMapper(new NoteRowMapper())
                 .registerRowMapper(new MakerReagentRowMapper())
-                .registerRowMapper(new MakerRecipeRowMapper());
+                .registerRowMapper(new MakerRecipeRowMapper())
+                .registerRowMapper(new MakerIngredientRowMapper());
     }
 }

@@ -5,6 +5,7 @@ import database.PgDatabaseConnection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.JdbiException;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MakerDao {
@@ -39,6 +40,20 @@ public class MakerDao {
                     .findOne();
         } catch (JdbiException e) {
             throw new DaoException("Failed to get maker recipe with item id: %d".formatted(itemId), e);
+        }
+    }
+
+    public List<MakerIngredient> getIngredients(int recipeItemId) {
+        try (Handle handle = connection.getHandle()) {
+            return handle.createQuery("""
+                            SELECT *
+                            FROM maker_ingredient
+                            WHERE maker_recipe = ?;""")
+                    .bind(0, recipeItemId)
+                    .mapTo(MakerIngredient.class)
+                    .list();
+        } catch (JdbiException e) {
+            throw new DaoException("Failed to get maker ingredients for recipe item id %d".formatted(recipeItemId), e);
         }
     }
 }

@@ -2,8 +2,10 @@ package database.maker;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import constants.id.ItemId;
 import net.jcip.annotations.ThreadSafe;
 
+import java.util.List;
 import java.util.Optional;
 
 @ThreadSafe
@@ -11,6 +13,7 @@ public class MakerInfoProvider {
     private final MakerDao makerDao;
     private final Cache<Integer, Optional<MakerReagent>> reagentCache = Caffeine.newBuilder().build();
     private final Cache<Integer, Optional<MakerRecipe>> recipeCache = Caffeine.newBuilder().build();
+    private final Cache<Integer, List<MakerIngredient>> ingredientsCache = Caffeine.newBuilder().build();
 
     public MakerInfoProvider(MakerDao makerDao) {
         if (makerDao == null) {
@@ -29,5 +32,32 @@ public class MakerInfoProvider {
 
     public Optional<Integer> getStimulant(int itemId) {
         return getMakerRecipe(itemId).map(MakerRecipe::catalyst);
+    }
+
+    public List<MakerIngredient> getIngredients(int recipeItemId) {
+        return ingredientsCache.get(recipeItemId, makerDao::getIngredients);
+    }
+
+    public Optional<MakerDisassemblyInfo> getDisassemblyInfo(int itemId) {
+        Optional<MakerRecipe> recipe = getMakerRecipe(itemId);
+        if (recipe.isEmpty()) {
+            return Optional.empty();
+        }
+        int fee = calculateDisassemblyFee(recipe.get().mesoCost());
+
+        List<MakerIngredient> gainedItems = getIngredients(itemId).stream()
+                .filter(i -> ItemId.isMonsterCrystal(i.itemId()))
+                .map(i -> new MakerIngredient(i.itemId(), (short) (i.count() / 2)))
+                .toList();
+
+        return Optional.of(new MakerDisassemblyInfo(fee, gainedItems));
+    }
+
+    private int calculateDisassemblyFee(int creationCost) {
+        // cost is 13.6363~ % of the original value, trim by 1000.
+        float val = (float) (creationCost * 0.13636363636364);
+        int fee = (int) (val / 1000);
+        fee *= 1000;
+        return fee;
     }
 }
