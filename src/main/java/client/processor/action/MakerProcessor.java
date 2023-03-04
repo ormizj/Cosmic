@@ -101,7 +101,11 @@ public class MakerProcessor {
                 } else {
                     if (ItemConstants.isEquipment(toCreate)) {   // only equips uses stimulant and reagents
                         if (p.readByte() != 0) {  // stimulant
-                            stimulantid = ii.getMakerStimulant(toCreate);
+                            Optional<Integer> makerStimulant = infoProvider.getStimulant(toCreate);
+                            if (makerStimulant.isEmpty()) {
+                                throw new IllegalArgumentException("Maker item %d has no stimulator".formatted(toCreate));
+                            }
+                            stimulantid = makerStimulant.get();
                             if (!c.getAbstractPlayerInteraction().haveItem(stimulantid)) {
                                 stimulantid = -1;
                             }

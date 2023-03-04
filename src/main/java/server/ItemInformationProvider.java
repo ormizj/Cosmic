@@ -40,7 +40,10 @@ import provider.wz.WZFiles;
 import server.MakerItemFactory.MakerItemCreateEntry;
 import server.life.LifeFactory;
 import server.life.MonsterInformationProvider;
-import tools.*;
+import tools.DatabaseConnection;
+import tools.PacketCreator;
+import tools.Pair;
+import tools.Randomizer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -111,7 +114,6 @@ public class ItemInformationProvider {
     protected Map<Integer, Integer> mobCrystalMakerCache = new HashMap<>();
     protected Map<Integer, Pair<String, Integer>> statUpgradeMakerCache = new HashMap<>();
     protected Map<Integer, MakerItemFactory.MakerItemCreateEntry> makerItemCache = new HashMap<>();
-    protected Map<Integer, Integer> makerCatalystCache = new HashMap<>();
     protected Map<Integer, Map<String, Integer>> skillUpgradeCache = new HashMap<>();
     protected Map<Integer, Data> skillUpgradeInfoCache = new HashMap<>();
     protected Map<Integer, Pair<Integer, Set<Integer>>> cashPetFoodCache = new HashMap<>();
@@ -2117,26 +2119,6 @@ public class ItemInformationProvider {
         }
 
         return fee;
-    }
-
-    public int getMakerStimulant(int itemId) {  // thanks to Arnah
-        Integer itemid = makerCatalystCache.get(itemId);
-        if (itemid != null) {
-            return itemid;
-        }
-
-        itemid = -1;
-        for (Data md : etcData.getData("ItemMake.img").getChildren()) {
-            Data me = md.getChildByPath(StringUtil.getLeftPaddedStr(Integer.toString(itemId), '0', 8));
-
-            if (me != null) {
-                itemid = DataTool.getInt(me.getChildByPath("catalyst"), -1);
-                break;
-            }
-        }
-
-        makerCatalystCache.put(itemId, itemid);
-        return itemid;
     }
 
     public Set<String> getWhoDrops(Integer itemId) {

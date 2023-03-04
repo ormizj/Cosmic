@@ -27,4 +27,18 @@ public class MakerDao {
             throw new DaoException("Failed to get maker reagent with item id: %d".formatted(itemId), e);
         }
     }
+
+    public Optional<MakerRecipe> getRecipe(int itemId) {
+        try (Handle handle = connection.getHandle()) {
+            return handle.createQuery("""
+                            SELECT *
+                            FROM maker_recipe
+                            WHERE item_id = ?;""")
+                    .bind(0, itemId)
+                    .mapTo(MakerRecipe.class)
+                    .findOne();
+        } catch (JdbiException e) {
+            throw new DaoException("Failed to get maker recipe with item id: %d".formatted(itemId), e);
+        }
+    }
 }
