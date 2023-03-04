@@ -24,6 +24,8 @@ services:
     
   db:
     image: mysql:8.0.23
+    ports:
+      - "3307:3306"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
       MYSQL_DATABASE: "cosmic"
@@ -35,6 +37,8 @@ services:
 
   pg_db:
     image: postgres:15.0
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
