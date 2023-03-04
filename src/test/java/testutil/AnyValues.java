@@ -8,6 +8,10 @@ public class AnyValues {
         return "string";
     }
 
+    public static int integer() {
+        return 17;
+    }
+
     public static DaoException daoException() {
         return new DaoException(string(), new RuntimeException());
     }

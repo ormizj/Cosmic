@@ -13,6 +13,9 @@ public class MakerInfoProvider {
     private final Map<Integer, MakerRecipe> recipeCache = new ConcurrentHashMap<>();
 
     public MakerInfoProvider(MakerDao makerDao) {
+        if (makerDao == null) {
+            throw new IllegalArgumentException("MakerDao is null");
+        }
         this.makerDao = makerDao;
     }
 
