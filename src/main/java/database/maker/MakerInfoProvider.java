@@ -1,50 +1,30 @@
 package database.maker;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import net.jcip.annotations.ThreadSafe;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @ThreadSafe
 public class MakerInfoProvider {
     private final MakerDao makerDao;
-    private final Map<Integer, MakerReagent> reagentCache = new ConcurrentHashMap<>();
-    private final Map<Integer, MakerRecipe> recipeCache = new ConcurrentHashMap<>();
+    private final Cache<Integer, Optional<MakerReagent>> reagentCache = Caffeine.newBuilder().build();
+    private final Cache<Integer, Optional<MakerRecipe>> recipeCache = Caffeine.newBuilder().build();
 
     public MakerInfoProvider(MakerDao makerDao) {
         if (makerDao == null) {
-            throw new IllegalArgumentException("MakerDao is null");
+            throw new IllegalArgumentException("MakerDao must not be null");
         }
         this.makerDao = makerDao;
     }
 
     public Optional<MakerReagent> getMakerReagent(int itemId) {
-        final MakerReagent cachedReagent = reagentCache.get(itemId);
-        if (cachedReagent != null) {
-            return Optional.of(cachedReagent);
-        }
-
-        final Optional<MakerReagent> reagentFromDb = makerDao.getReagent(itemId);
-        if (reagentFromDb.isEmpty()) {
-            return Optional.empty();
-        }
-        reagentCache.put(itemId, reagentFromDb.get());
-        return reagentFromDb;
+        return reagentCache.get(itemId, makerDao::getReagent);
     }
 
     public Optional<MakerRecipe> getMakerRecipe(int itemId) {
-        final MakerRecipe cachedRecipe = recipeCache.get(itemId);
-        if (cachedRecipe != null) {
-            return Optional.of(cachedRecipe);
-        }
-
-        final Optional<MakerRecipe> recipeFromDb = makerDao.getRecipe(itemId);
-        if (recipeFromDb.isEmpty()) {
-            return Optional.empty();
-        }
-        recipeCache.put(itemId, recipeFromDb.get());
-        return recipeFromDb;
+        return recipeCache.get(itemId, makerDao::getRecipe);
     }
 
     public Optional<Integer> getStimulant(int itemId) {

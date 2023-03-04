@@ -37,6 +37,7 @@
         <jdbi-version>3.37.1</jdbi-version> <!-- Convenience wrapper around JDBC -->
         <junit.version>5.9.2</junit.version> <!-- Unit test -->
         <mockito.version>5.1.1</mockito.version> <!-- Unit test -->
+        <caffeine.version>3.1.4</caffeine.version> <!-- Caching -->
     </properties>
 
     <dependencies>
@@ -49,6 +50,11 @@
             <groupId>net.jcip</groupId>
             <artifactId>jcip-annotations</artifactId>
             <version>${jcip-annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
         </dependency>
 
         <!-- Database -->
