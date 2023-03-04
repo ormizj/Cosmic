@@ -172,7 +172,7 @@ public class MakerProcessor {
                         break;
 
                     case 2: // no meso
-                        c.sendPacket(PacketCreator.serverNotice(1, "You don't have enough mesos (" + GameConstants.numberWithCommas(recipe.getCost()) + ") to complete this operation."));
+                        c.sendPacket(PacketCreator.serverNotice(1, "You don't have enough mesos (" + GameConstants.numberWithCommas(recipe.getReqCost()) + ") to complete this operation."));
                         c.sendPacket(PacketCreator.makerEnableActions());
                         break;
 
@@ -194,14 +194,14 @@ public class MakerProcessor {
                     default:
                         if (toDisassemble != -1) {
                             InventoryManipulator.removeFromSlot(c, InventoryType.EQUIP, (short) pos, (short) 1, false);
-                            // TODO: fix disassembly being free. The fee is never applied.
+                            c.getPlayer().gainMeso(-recipe.getCost());
                         } else {
                             for (Pair<Integer, Integer> pair : recipe.getReqItems()) {
                                 c.getAbstractPlayerInteraction().gainItem(pair.getLeft(), (short) -pair.getRight(), false);
                             }
                         }
 
-                        int cost = recipe.getCost();
+                        int cost = recipe.getReqCost();
                         if (stimulantid == -1 && reagentids.isEmpty()) {
                             if (cost > 0) {
                                 c.getPlayer().gainMeso(-cost, false);
@@ -234,9 +234,9 @@ public class MakerProcessor {
                         if (type == 3) {
                             c.sendPacket(PacketCreator.makerResultCrystal(recipe.getGainItems().get(0).getLeft(), recipe.getReqItems().get(0).getLeft()));
                         } else if (type == 4) {
-                            c.sendPacket(PacketCreator.makerResultDesynth(recipe.getReqItems().get(0).getLeft(), recipe.getCost(), recipe.getGainItems()));
+                            c.sendPacket(PacketCreator.makerResultDesynth(recipe.getReqItems().get(0).getLeft(), recipe.getReqCost(), recipe.getGainItems()));
                         } else {
-                            c.sendPacket(PacketCreator.makerResult(makerSucceeded, recipe.getGainItems().get(0).getLeft(), recipe.getGainItems().get(0).getRight(), recipe.getCost(), recipe.getReqItems(), stimulantid, new LinkedList<>(reagentids.keySet())));
+                            c.sendPacket(PacketCreator.makerResult(makerSucceeded, recipe.getGainItems().get(0).getLeft(), recipe.getGainItems().get(0).getRight(), recipe.getReqCost(), recipe.getReqItems(), stimulantid, new LinkedList<>(reagentids.keySet())));
                         }
 
                         c.sendPacket(PacketCreator.showMakerEffect(makerSucceeded));
@@ -323,7 +323,7 @@ public class MakerProcessor {
             return 1;
         }
 
-        if (c.getPlayer().getMeso() < recipe.getCost()) {
+        if (c.getPlayer().getMeso() < recipe.getReqCost()) {
             return 2;
         }
 

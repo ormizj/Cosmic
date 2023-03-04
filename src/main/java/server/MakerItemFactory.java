@@ -182,12 +182,16 @@ public class MakerItemFactory {
             return reqMakerLevel;
         }
 
-        public int getCost() {
+        public int getReqCost() {
             return reqCost;
         }
 
         public void addCost(double amount) {
             cost += amount;
+        }
+
+        public int getCost() {
+            return (int) this.cost;
         }
 
         protected void addReqItem(int itemId, int amount) {
