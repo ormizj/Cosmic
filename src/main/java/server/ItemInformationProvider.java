@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import provider.*;
 import provider.wz.WZFiles;
-import server.MakerItemFactory.MakerItemCreateEntry;
 import server.life.LifeFactory;
 import server.life.MonsterInformationProvider;
 import tools.DatabaseConnection;
@@ -112,8 +111,6 @@ public class ItemInformationProvider {
     protected Map<Integer, String> equipmentSlotCache = new HashMap<>();
     protected Map<Integer, Boolean> noCancelMouseCache = new HashMap<>();
     protected Map<Integer, Integer> mobCrystalMakerCache = new HashMap<>();
-    protected Map<Integer, Pair<String, Integer>> statUpgradeMakerCache = new HashMap<>();
-    protected Map<Integer, MakerItemFactory.MakerItemCreateEntry> makerItemCache = new HashMap<>();
     protected Map<Integer, Map<String, Integer>> skillUpgradeCache = new HashMap<>();
     protected Map<Integer, Data> skillUpgradeInfoCache = new HashMap<>();
     protected Map<Integer, Pair<Integer, Set<Integer>>> cashPetFoodCache = new HashMap<>();
@@ -2015,51 +2012,6 @@ public class ItemInformationProvider {
         }
 
         return -1;
-    }
-
-    public MakerItemCreateEntry getMakerItemEntry(int toCreate) {
-        MakerItemCreateEntry makerEntry;
-
-        if ((makerEntry = makerItemCache.get(toCreate)) != null) {
-            return new MakerItemCreateEntry(makerEntry);
-        } else {
-            try (Connection con = DatabaseConnection.getConnection()) {
-                int reqLevel = -1;
-                int reqMakerLevel = -1;
-                int cost = -1;
-                int toGive = -1;
-                try (PreparedStatement ps = con.prepareStatement("SELECT req_level, req_maker_level, req_meso, quantity FROM makercreatedata WHERE itemid = ?")) {
-                    ps.setInt(1, toCreate);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            reqLevel = rs.getInt("req_level");
-                            reqMakerLevel = rs.getInt("req_maker_level");
-                            cost = rs.getInt("req_meso");
-                            toGive = rs.getInt("quantity");
-                        }
-                    }
-                }
-
-                makerEntry = new MakerItemCreateEntry(cost, reqLevel, reqMakerLevel);
-                makerEntry.addGainItem(toCreate, toGive);
-
-                try (PreparedStatement ps = con.prepareStatement("SELECT req_item, count FROM makerrecipedata WHERE itemid = ?")) {
-                    ps.setInt(1, toCreate);
-
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            makerEntry.addReqItem(rs.getInt("req_item"), rs.getInt("count"));
-                        }
-                    }
-                }
-                makerItemCache.put(toCreate, new MakerItemCreateEntry(makerEntry));
-            } catch (SQLException sqle) {
-                sqle.printStackTrace();
-                makerEntry = null;
-            }
-        }
-
-        return makerEntry;
     }
 
     public int getMakerCrystalFromEquip(Integer equipId) {

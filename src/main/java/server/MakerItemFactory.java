@@ -37,8 +37,7 @@ import java.util.Map.Entry;
 public class MakerItemFactory {
     private static final ItemInformationProvider ii = ItemInformationProvider.getInstance();
 
-    public static MakerItemCreateEntry getItemCreateEntry(int toCreate, int stimulantid, Map<Integer, Short> reagentids) {
-        MakerItemCreateEntry makerEntry = ii.getMakerItemEntry(toCreate);
+    public static MakerItemCreateEntry finalizeItemCreateEntry(MakerItemCreateEntry makerEntry, int toCreate, int stimulantid, Map<Integer, Short> reagentids) {
         if (makerEntry.isInvalid()) {
             return makerEntry;
         }
@@ -156,16 +155,6 @@ public class MakerItemFactory {
             this.reqMakerLevel = reqMakerLevel;
         }
 
-        public MakerItemCreateEntry(MakerItemCreateEntry mi) {
-            this.cost = mi.cost;
-            this.reqLevel = mi.reqLevel;
-            this.reqMakerLevel = mi.reqMakerLevel;
-
-            reqItems.addAll(mi.reqItems);
-
-            gainItems.addAll(mi.gainItems);
-        }
-
         public List<Pair<Integer, Integer>> getReqItems() {
             return reqItems;
         }
@@ -194,11 +183,11 @@ public class MakerItemFactory {
             return (int) this.cost;
         }
 
-        protected void addReqItem(int itemId, int amount) {
+        public void addReqItem(int itemId, int amount) {
             reqItems.add(new Pair<>(itemId, amount));
         }
 
-        protected void addGainItem(int itemId, int amount) {
+        public void addGainItem(int itemId, int amount) {
             gainItems.add(new Pair<>(itemId, amount));
         }
 

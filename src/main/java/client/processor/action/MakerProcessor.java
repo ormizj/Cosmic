@@ -154,7 +154,11 @@ public class MakerProcessor {
                         }
                     }
 
-                    recipe = MakerItemFactory.getItemCreateEntry(toCreate, stimulantid, reagentids);
+                    Optional<MakerItemCreateEntry> createEntry = infoProvider.getMakerItemEntry(toCreate);
+                    if (createEntry.isEmpty()) {
+                        return;
+                    }
+                    recipe = MakerItemFactory.finalizeItemCreateEntry(createEntry.get(), toCreate, stimulantid, reagentids);
                 }
 
                 short createStatus = getCreateStatus(c, recipe);

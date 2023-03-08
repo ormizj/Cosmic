@@ -4,8 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import server.MakerItemFactory;
 import testutil.AnyValues;
+import tools.Pair;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,7 +78,7 @@ class MakerInfoProviderTest {
 
     @Test
     void getRecipeFromDb_notFound() {
-        when(makerDao.getRecipe(anyInt())).thenReturn(Optional.empty());
+        givenNoRecipe();
 
         Optional<MakerRecipe> recipe = makerInfoProvider.getMakerRecipe(AnyValues.integer());
 
@@ -116,10 +119,48 @@ class MakerInfoProviderTest {
 
     @Test
     void getStimulant_noRecipe() {
-        when(makerDao.getRecipe(anyInt())).thenReturn(Optional.empty());
+        givenNoRecipe();
 
         Optional<Integer> stimulant = makerInfoProvider.getStimulant(AnyValues.integer());
 
         assertTrue(stimulant.isEmpty());
+    }
+
+    @Test
+    void getMakerItemCreateEntry_noRecipe() {
+        givenNoRecipe();
+
+        Optional<MakerItemFactory.MakerItemCreateEntry> createEntry = makerInfoProvider.getMakerItemEntry(345093);
+
+        assertTrue(createEntry.isEmpty());
+    }
+
+    @Test
+    void getMakerItemCreateEntry() {
+        final int itemId = 458945;
+        MakerRecipe recipe = createRecipe(itemId);
+        when(makerDao.getRecipe(anyInt())).thenReturn(Optional.of(recipe));
+        MakerIngredient ingredient = new MakerIngredient(1002003, (short) 5);
+        when(makerDao.getIngredients(anyInt())).thenReturn(List.of(ingredient));
+
+        Optional<MakerItemFactory.MakerItemCreateEntry> optionalCreateEntry = makerInfoProvider.getMakerItemEntry(itemId);
+
+        assertTrue(optionalCreateEntry.isPresent());
+        MakerItemFactory.MakerItemCreateEntry createEntry = optionalCreateEntry.get();
+        assertEquals(recipe.mesoCost(), createEntry.getCost());
+        assertEquals(recipe.requiredLevel(), createEntry.getReqLevel());
+        assertEquals(recipe.requiredMakerLevel(), createEntry.getReqSkillLevel());
+        assertEquals(1, createEntry.getReqItems().size());
+        Pair<Integer, Integer> ingredientPair = createEntry.getReqItems().get(0);
+        assertEquals(ingredient.itemId(), ingredientPair.left);
+        assertEquals(ingredient.count(), ingredientPair.right);
+        assertEquals(1, createEntry.getGainItems().size());
+        Pair<Integer, Integer> resultPair = createEntry.getGainItems().get(0);
+        assertEquals(itemId, resultPair.left);
+        assertEquals(recipe.quantity(), resultPair.right);
+    }
+
+    private void givenNoRecipe() {
+        when(makerDao.getRecipe(anyInt())).thenReturn(Optional.empty());
     }
 }

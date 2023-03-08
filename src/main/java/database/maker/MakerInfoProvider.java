@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import constants.id.ItemId;
 import net.jcip.annotations.ThreadSafe;
+import server.MakerItemFactory.MakerItemCreateEntry;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,5 +60,22 @@ public class MakerInfoProvider {
         int fee = (int) (val / 1000);
         fee *= 1000;
         return fee;
+    }
+
+    public Optional<MakerItemCreateEntry> getMakerItemEntry(int itemId) {
+        Optional<MakerRecipe> optionalRecipe = getMakerRecipe(itemId);
+        if (optionalRecipe.isEmpty()) {
+            return Optional.empty();
+        }
+
+        final MakerRecipe recipe = optionalRecipe.get();
+        final MakerItemCreateEntry makerEntry = new MakerItemCreateEntry(recipe.mesoCost(), recipe.requiredLevel(),
+                recipe.requiredMakerLevel());
+        makerEntry.addGainItem(itemId, recipe.quantity());
+
+        final List<MakerIngredient> ingredients = getIngredients(itemId);
+        ingredients.forEach(i -> makerEntry.addReqItem(i.itemId(), i.count()));
+
+        return Optional.of(makerEntry);
     }
 }
