@@ -1,5 +1,6 @@
 package database;
 
+import database.drop.GlobalMonsterDropRowMapper;
 import database.drop.MonsterDropRowMapper;
 import database.maker.MakerIngredientRowMapper;
 import database.maker.MakerReagentRowMapper;
@@ -18,6 +19,7 @@ public final class JdbiConfig {
                 .registerRowMapper(new MakerReagentRowMapper())
                 .registerRowMapper(new MakerRecipeRowMapper())
                 .registerRowMapper(new MakerIngredientRowMapper())
-                .registerRowMapper(new MonsterDropRowMapper());
+                .registerRowMapper(new MonsterDropRowMapper())
+                .registerRowMapper(new GlobalMonsterDropRowMapper());
     }
 }

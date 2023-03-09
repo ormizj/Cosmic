@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import server.life.MonsterDropEntry;
+import server.life.MonsterGlobalDropEntry;
 
 import java.util.Collections;
 import java.util.List;
@@ -74,6 +75,33 @@ class DropProviderTest {
 
     private MonsterDrop snailShellDrop() {
         return new MonsterDrop(100100, 4000019, 1, 2, null, 600_000);
+    }
+
+    @Test
+    void getCachedGlobalDropEntries() {
+        GlobalMonsterDrop globalDrop = new GlobalMonsterDrop(2049100, -1, 2, 3, null, 450);
+        when(dropDao.getGlobalMonsterDrops()).thenReturn(List.of(globalDrop));
+
+        List<MonsterGlobalDropEntry> dropEntries1 = dropProvider.getGlobalDropEntries();
+        List<MonsterGlobalDropEntry> dropEntries2 = dropProvider.getGlobalDropEntries();
+
+        assertEquals(1, dropEntries1.size());
+        assertEquals(1, dropEntries2.size());
+        MonsterGlobalDropEntry dropEntry1 = dropEntries1.get(0);
+        MonsterGlobalDropEntry dropEntry2 = dropEntries2.get(0);
+        assertEquals(2049100, dropEntry1.itemId);
+        assertEquals(dropEntry1.itemId, dropEntry2.itemId);
+        assertEquals(-1, dropEntry1.continentid);
+        assertEquals(dropEntry1.continentid, dropEntry2.continentid);
+        assertEquals(2, dropEntry1.Minimum);
+        assertEquals(dropEntry1.Minimum, dropEntry2.Minimum);
+        assertEquals(3, dropEntry1.Maximum);
+        assertEquals(dropEntry1.Maximum, dropEntry2.Maximum);
+        assertEquals(0, dropEntry1.questid);
+        assertEquals(dropEntry1.questid, dropEntry2.questid);
+        assertEquals(450, dropEntry1.chance);
+        assertEquals(dropEntry1.chance, dropEntry2.chance);
+        verify(dropDao, times(1)).getGlobalMonsterDrops();
     }
 
 }

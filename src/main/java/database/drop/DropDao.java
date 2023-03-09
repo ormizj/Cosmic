@@ -26,4 +26,16 @@ public class DropDao {
             throw new DaoException("Failed to get monster drops for id %d".formatted(monsterId), e);
         }
     }
+
+    public List<GlobalMonsterDrop> getGlobalMonsterDrops() {
+        try (Handle handle = connection.getHandle()) {
+            return handle.createQuery("""
+                            SELECT *
+                            FROM global_monster_drop;""")
+                    .mapTo(GlobalMonsterDrop.class)
+                    .list();
+        } catch (JdbiException e) {
+            throw new DaoException("Failed to get global monster drops", e);
+        }
+    }
 }
