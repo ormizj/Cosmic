@@ -20,6 +20,7 @@ public class DropDao {
                             SELECT *
                             FROM monster_drop
                             WHERE monster_id = ?;""")
+                    .bind(0, monsterId)
                     .mapTo(MonsterDrop.class)
                     .list();
         } catch (JdbiException e) {
