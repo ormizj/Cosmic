@@ -121,7 +121,7 @@ public class CommandsExecutor {
             params = new String[]{};
         }
 
-        command.execute(client, params);
+        command.execute(client, params, commandContext);
         log.info("Chr {} used command {}", client.getPlayer().getName(), command.getClass().getSimpleName());
     }
 

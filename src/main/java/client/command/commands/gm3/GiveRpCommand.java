@@ -3,6 +3,7 @@ package client.command.commands.gm3;
 import client.Character;
 import client.Client;
 import client.command.Command;
+import client.command.CommandContext;
 
 public class GiveRpCommand extends Command {
     {
@@ -10,7 +11,7 @@ public class GiveRpCommand extends Command {
     }
 
     @Override
-    public void execute(Client client, String[] params) {
+    public void execute(Client client, String[] params, CommandContext ctx) {
         Character player = client.getPlayer();
         if (params.length < 2) {
             player.yellowMessage("Syntax: !giverp <playername> <gainrewardpoint>");

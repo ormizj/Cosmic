@@ -25,6 +25,7 @@ package client.command.commands.gm0;
 
 import client.Client;
 import client.command.Command;
+import client.command.CommandContext;
 import constants.id.NpcId;
 
 public class HelpCommand extends Command {
@@ -33,7 +34,7 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public void execute(Client client, String[] params) {
+    public void execute(Client client, String[] params, CommandContext ctx) {
         client.getAbstractPlayerInteraction().openNpc(NpcId.STEWARD, "commands");
     }
 }

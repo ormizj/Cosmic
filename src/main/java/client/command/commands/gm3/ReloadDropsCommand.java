@@ -26,6 +26,7 @@ package client.command.commands.gm3;
 import client.Character;
 import client.Client;
 import client.command.Command;
+import client.command.CommandContext;
 import server.life.MonsterInformationProvider;
 
 public class ReloadDropsCommand extends Command {
@@ -34,7 +35,7 @@ public class ReloadDropsCommand extends Command {
     }
 
     @Override
-    public void execute(Client c, String[] params) {
+    public void execute(Client c, String[] params, CommandContext ctx) {
         Character player = c.getPlayer();
         MonsterInformationProvider.getInstance().clearDrops();
         player.dropMessage(5, "Reloaded Drops");
