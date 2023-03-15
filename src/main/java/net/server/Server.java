@@ -25,6 +25,7 @@ import client.Character;
 import client.Client;
 import client.Family;
 import client.SkillFactory;
+import client.command.CommandContext;
 import client.command.CommandsExecutor;
 import client.inventory.Item;
 import client.inventory.ItemFactory;
@@ -930,7 +931,6 @@ public class Server {
         log.info("Cosmic is now online after {} ms.", initDuration.toMillis());
 
         OpcodeConstants.generateOpcodeNames();
-        CommandsExecutor.getInstance();
 
         for (Channel ch : this.getAllChannels()) {
             ch.reloadEventScriptManager();
@@ -977,8 +977,10 @@ public class Server {
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
+        CommandContext commandContext = new CommandContext(dropProvider);
+        CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
-                makerProcessor, dropProvider);
+                makerProcessor, dropProvider, commandsExecutor);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

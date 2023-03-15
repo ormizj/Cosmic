@@ -43,16 +43,27 @@ import java.util.List;
 
 public class CommandsExecutor {
     private static final Logger log = LoggerFactory.getLogger(CommandsExecutor.class);
-    private static final CommandsExecutor instance = new CommandsExecutor();
     private static final char USER_HEADING = '@';
     private static final char GM_HEADING = '!';
 
     private final HashMap<String, Command> registeredCommands = new HashMap<>();
     private final List<Pair<List<String>, List<String>>> commandsNameDesc = new ArrayList<>();
+    private final CommandContext commandContext;
     private Pair<List<String>, List<String>> levelCommandsCursor;
 
-    public static CommandsExecutor getInstance() {
-        return instance;
+    public CommandsExecutor(CommandContext commandContext) {
+        this.commandContext = commandContext;
+        registerCommands();
+    }
+
+    private void registerCommands() {
+        registerLv0Commands();
+        registerLv1Commands();
+        registerLv2Commands();
+        registerLv3Commands();
+        registerLv4Commands();
+        registerLv5Commands();
+        registerLv6Commands();
     }
 
     public static boolean isCommand(Client client, String content) {
@@ -61,16 +72,6 @@ public class CommandsExecutor {
             return heading == USER_HEADING || heading == GM_HEADING;
         }
         return heading == USER_HEADING;
-    }
-
-    private CommandsExecutor() {
-        registerLv0Commands();
-        registerLv1Commands();
-        registerLv2Commands();
-        registerLv3Commands();
-        registerLv4Commands();
-        registerLv5Commands();
-        registerLv6Commands();
     }
 
     public List<Pair<List<String>, List<String>>> getGmCommands() {

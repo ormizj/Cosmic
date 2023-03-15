@@ -142,7 +142,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.WORLD_TRANSFER, new TransferWorldHandler());
         registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
         registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());
-        registerHandler(RecvOpcode.GENERAL_CHAT, new GeneralChatHandler());
+        registerHandler(RecvOpcode.GENERAL_CHAT, new GeneralChatHandler(channelDeps.commandsExecutor()));
         registerHandler(RecvOpcode.WHISPER, new WhisperHandler());
         registerHandler(RecvOpcode.NPC_TALK, new NPCTalkHandler());
         registerHandler(RecvOpcode.NPC_TALK_MORE, new NPCMoreTalkHandler());

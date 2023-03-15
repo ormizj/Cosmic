@@ -34,6 +34,11 @@ import tools.PacketCreator;
 
 public final class GeneralChatHandler extends AbstractPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(GeneralChatHandler.class);
+    private final CommandsExecutor commandsExecutor;
+
+    public GeneralChatHandler(CommandsExecutor commandsExecutor) {
+        this.commandsExecutor = commandsExecutor;
+    }
 
     @Override
     public void handlePacket(InPacket p, Client c) {
@@ -51,7 +56,7 @@ public final class GeneralChatHandler extends AbstractPacketHandler {
         }
         char heading = s.charAt(0);
         if (CommandsExecutor.isCommand(c, s)) {
-            CommandsExecutor.getInstance().handle(c, s);
+            commandsExecutor.handle(c, s);
         } else if (heading != '/') {
             int show = p.readByte();
             if (chr.getMap().isMuted() && !chr.isGM()) {
