@@ -290,16 +290,10 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         player.addHP(Math.min(monster.getMaxHp(), Math.min((int) ((double) totDamage * (double) SkillFactory.getSkill(attack.skill).getEffect(player.getSkillLevel(SkillFactory.getSkill(attack.skill))).getX() / 100.0), player.getCurrentMaxHp() / 2)));
                     } else if (attack.skill == Bandit.STEAL) {
                         Skill steal = SkillFactory.getSkill(Bandit.STEAL);
-                        if (monster.getStolen().isEmpty()) { // One steal per mob <3
-                            if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) {
-                                monster.addStolen(0);
+                        if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult() && monster.trySteal()) {
 
-                                Optional<MonsterDropEntry> stolenItem = dropProvider.getRandomStealDrop(monster.getId());
-                                if (stolenItem.isPresent()) {
-                                    map.dropItemsFromMonster(Collections.singletonList(stolenItem.get()), player, monster);
-                                    monster.addStolen(stolenItem.get().itemId);
-                                }
-                            }
+                            Optional<MonsterDropEntry> stolenItem = dropProvider.getRandomStealDrop(monster.getId());
+                            stolenItem.ifPresent(item -> map.dropItemsFromMonster(Collections.singletonList(item), player, monster));
                         }
                     } else if (attack.skill == FPArchMage.FIRE_DEMON) {
                         long duration = SECONDS.toMillis(SkillFactory.getSkill(FPArchMage.FIRE_DEMON).getEffect(player.getSkillLevel(SkillFactory.getSkill(FPArchMage.FIRE_DEMON))).getDuration());
