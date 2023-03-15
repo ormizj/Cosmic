@@ -42,6 +42,8 @@ import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
 import database.PgDatabaseConfig;
 import database.PgDatabaseConnection;
+import database.drop.DropDao;
+import database.drop.DropProvider;
 import database.maker.MakerDao;
 import database.maker.MakerInfoProvider;
 import database.migration.FlywayRunner;
@@ -974,8 +976,9 @@ public class Server {
         NoteService noteService = new NoteService(new NoteDao(connection));
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
+        DropProvider dropProvider = new DropProvider(new DropDao(connection));
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
-                makerProcessor);
+                makerProcessor, dropProvider);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

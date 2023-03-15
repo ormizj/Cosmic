@@ -29,6 +29,7 @@ import constants.skills.Bishop;
 import constants.skills.Evan;
 import constants.skills.FPArchMage;
 import constants.skills.ILArchMage;
+import database.drop.DropProvider;
 import net.packet.InPacket;
 import net.packet.Packet;
 import server.StatEffect;
@@ -37,6 +38,10 @@ import tools.PacketCreator;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class MagicDamageHandler extends AbstractDealDamageHandler {
+
+    public MagicDamageHandler(DropProvider dropProvider) {
+        super(dropProvider);
+    }
     @Override
     public final void handlePacket(InPacket p, Client c) {
         Character chr = c.getPlayer();

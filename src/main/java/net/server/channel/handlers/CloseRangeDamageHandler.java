@@ -27,6 +27,7 @@ import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.id.MapId;
 import constants.skills.*;
+import database.drop.DropProvider;
 import net.packet.InPacket;
 import server.StatEffect;
 import tools.PacketCreator;
@@ -39,6 +40,10 @@ import java.util.List;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
+
+    public CloseRangeDamageHandler(DropProvider dropProvider) {
+        super(dropProvider);
+    }
 
     @Override
     public final void handlePacket(InPacket p, Client c) {

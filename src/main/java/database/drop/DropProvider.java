@@ -2,10 +2,12 @@ package database.drop;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import server.ItemInformationProvider;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DropProvider {
     private final DropDao dropDao;
@@ -19,8 +21,12 @@ public class DropProvider {
         this.dropDao = dropDao;
     }
 
+    private List<MonsterDrop> getMonsterDrops(int monsterId) {
+        return monsterDropCache.get(monsterId, dropDao::getMonsterDrops);
+    }
+
     public List<MonsterDropEntry> getMonsterDropEntries(int monsterId) {
-        return monsterDropCache.get(monsterId, dropDao::getMonsterDrops).stream()
+        return getMonsterDrops(monsterId).stream()
                 .map(this::mapToDropEntry)
                 .toList();
     }
@@ -51,5 +57,38 @@ public class DropProvider {
         short questId = globalDrop.questId() == null ? 0 : globalDrop.questId().shortValue();
         return new MonsterGlobalDropEntry(globalDrop.itemId(), globalDrop.chance(), globalDrop.continent(),
                 globalDrop.minQuantity(), globalDrop.maxQuantity(), questId);
+    }
+
+    /**
+     * The chance of an item to be stolen is calculated like this: (item chance) / (sum of all item chances)
+     * It works just like "lottery scheduling", but with droppable items instead of OS processes.
+     */
+    public Optional<MonsterDropEntry> getRandomStealDrop(int monsterId) {
+        List<MonsterDrop> relevantDrops = getMonsterDrops(monsterId).stream()
+                .filter(this::isNonQuestItem)
+                .toList();
+        if (relevantDrops.isEmpty()) {
+            return Optional.empty();
+        }
+
+        final long totalChance = relevantDrops.stream()
+                .mapToLong(MonsterDrop::chance)
+                .sum();
+        final long winningTicket = (long) Math.floor(Math.random() * totalChance);
+
+        long remainingChance = totalChance;
+        for (MonsterDrop drop : relevantDrops) {
+            remainingChance -= drop.chance();
+            if (winningTicket >= remainingChance) {
+                return Optional.of(mapToDropEntry(drop));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean isNonQuestItem(MonsterDrop drop) {
+        ItemInformationProvider ii = ItemInformationProvider.getInstance();
+        return !ii.isQuestItem(drop.itemId()) && !ii.isPartyQuestItem(drop.itemId());
     }
 }

@@ -104,4 +104,6 @@ class DropProviderTest {
         verify(dropDao, times(1)).getGlobalMonsterDrops();
     }
 
+    // TODO: add tests for getRandomStealDrop() once ItemInformationProvider is able to be mocked.
+    // Currently, it does database calls (and a bunch of other stuff) in the constructor, which is problematic.
 }

@@ -32,6 +32,7 @@ import constants.id.ItemId;
 import constants.id.MapId;
 import constants.id.MobId;
 import constants.skills.*;
+import database.drop.DropProvider;
 import net.AbstractPacketHandler;
 import net.packet.InPacket;
 import net.server.PlayerBuffValueHolder;
@@ -54,6 +55,11 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
+    private final DropProvider dropProvider;
+
+    public AbstractDealDamageHandler(DropProvider dropProvider) {
+        this.dropProvider = dropProvider;
+    }
 
     public static class AttackInfo {
 
@@ -284,25 +290,14 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         player.addHP(Math.min(monster.getMaxHp(), Math.min((int) ((double) totDamage * (double) SkillFactory.getSkill(attack.skill).getEffect(player.getSkillLevel(SkillFactory.getSkill(attack.skill))).getX() / 100.0), player.getCurrentMaxHp() / 2)));
                     } else if (attack.skill == Bandit.STEAL) {
                         Skill steal = SkillFactory.getSkill(Bandit.STEAL);
-                        if (monster.getStolen().size() < 1) { // One steal per mob <3
+                        if (monster.getStolen().isEmpty()) { // One steal per mob <3
                             if (steal.getEffect(player.getSkillLevel(steal)).makeChanceResult()) {
                                 monster.addStolen(0);
 
-                                MonsterInformationProvider mi = MonsterInformationProvider.getInstance();
-                                List<Integer> dropPool = mi.retrieveDropPool(monster.getId());
-                                if (!dropPool.isEmpty()) {
-                                    int rndPool = (int) Math.floor(Math.random() * dropPool.get(dropPool.size() - 1));
-
-                                    int i = 0;
-                                    while (rndPool >= dropPool.get(i)) {
-                                        i++;
-                                    }
-
-                                    List<MonsterDropEntry> toSteal = new ArrayList<>();
-                                    toSteal.add(mi.retrieveDrop(monster.getId()).get(i));
-
-                                    map.dropItemsFromMonster(toSteal, player, monster);
-                                    monster.addStolen(toSteal.get(0).itemId);
+                                Optional<MonsterDropEntry> stolenItem = dropProvider.getRandomStealDrop(monster.getId());
+                                if (stolenItem.isPresent()) {
+                                    map.dropItemsFromMonster(Collections.singletonList(stolenItem.get()), player, monster);
+                                    monster.addStolen(stolenItem.get().itemId);
                                 }
                             }
                         }

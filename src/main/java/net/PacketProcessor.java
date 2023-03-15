@@ -155,9 +155,9 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.PLAYER_LOGGEDIN, new PlayerLoggedinHandler(channelDeps.noteService()));
         registerHandler(RecvOpcode.CHANGE_MAP, new ChangeMapHandler());
         registerHandler(RecvOpcode.MOVE_LIFE, new MoveLifeHandler());
-        registerHandler(RecvOpcode.CLOSE_RANGE_ATTACK, new CloseRangeDamageHandler());
-        registerHandler(RecvOpcode.RANGED_ATTACK, new RangedAttackHandler());
-        registerHandler(RecvOpcode.MAGIC_ATTACK, new MagicDamageHandler());
+        registerHandler(RecvOpcode.CLOSE_RANGE_ATTACK, new CloseRangeDamageHandler(channelDeps.dropProvider()));
+        registerHandler(RecvOpcode.RANGED_ATTACK, new RangedAttackHandler(channelDeps.dropProvider()));
+        registerHandler(RecvOpcode.MAGIC_ATTACK, new MagicDamageHandler(channelDeps.dropProvider()));
         registerHandler(RecvOpcode.TAKE_DAMAGE, new TakeDamageHandler());
         registerHandler(RecvOpcode.MOVE_PLAYER, new MovePlayerHandler());
         registerHandler(RecvOpcode.USE_CASH_ITEM, new UseCashItemHandler(channelDeps.noteService()));
@@ -189,7 +189,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.ENTER_CASHSHOP, new EnterCashShopHandler());
         registerHandler(RecvOpcode.DAMAGE_SUMMON, new DamageSummonHandler());
         registerHandler(RecvOpcode.MOVE_SUMMON, new MoveSummonHandler());
-        registerHandler(RecvOpcode.SUMMON_ATTACK, new SummonDamageHandler());
+        registerHandler(RecvOpcode.SUMMON_ATTACK, new SummonDamageHandler(channelDeps.dropProvider()));
         registerHandler(RecvOpcode.BUDDYLIST_MODIFY, new BuddylistModifyHandler());
         registerHandler(RecvOpcode.USE_ITEMEFFECT, new UseItemEffectHandler());
         registerHandler(RecvOpcode.USE_CHAIR, new UseChairHandler());
@@ -225,7 +225,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.PET_EXCLUDE_ITEMS, new PetExcludeItemsHandler());
         registerHandler(RecvOpcode.OWL_ACTION, new UseOwlOfMinervaHandler());
         registerHandler(RecvOpcode.OWL_WARP, new OwlWarpHandler());
-        registerHandler(RecvOpcode.TOUCH_MONSTER_ATTACK, new TouchMonsterDamageHandler());
+        registerHandler(RecvOpcode.TOUCH_MONSTER_ATTACK, new TouchMonsterDamageHandler(channelDeps.dropProvider()));
         registerHandler(RecvOpcode.TROCK_ADD_MAP, new TrockAddMapHandler());
         registerHandler(RecvOpcode.HIRED_MERCHANT_REQUEST, new HiredMerchantRequest());
         registerHandler(RecvOpcode.MOB_BANISH_PLAYER, new MobBanishPlayerHandler());
