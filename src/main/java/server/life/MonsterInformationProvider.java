@@ -20,8 +20,6 @@
  */
 package server.life;
 
-import config.YamlConfig;
-import constants.inventory.ItemConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import provider.Data;
@@ -31,7 +29,6 @@ import provider.DataTool;
 import provider.wz.WZFiles;
 import tools.DatabaseConnection;
 import tools.Pair;
-import tools.Randomizer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,9 +49,6 @@ public class MonsterInformationProvider {
     private final Map<Integer, List<MonsterDropEntry>> drops = new HashMap<>();
     private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
     private final Map<Integer, List<MonsterGlobalDropEntry>> continentdrops = new HashMap<>();
-
-    private final Set<Integer> hasNoMultiEquipDrops = new HashSet<>();
-    private final Map<Integer, List<MonsterDropEntry>> extraMultiEquipDrops = new HashMap<>();
 
     private final Map<Pair<Integer, Integer>, Integer> mobAttackAnimationTime = new HashMap<>();
     private final Map<MobSkill, Integer> mobSkillAnimationTime = new HashMap<>();
@@ -106,49 +100,10 @@ public class MonsterInformationProvider {
     }
 
     public List<MonsterDropEntry> retrieveEffectiveDrop(final int monsterId) {
-        // this reads the drop entries searching for multi-equip, properly processing them
-
-        List<MonsterDropEntry> list = retrieveDrop(monsterId);
-        if (hasNoMultiEquipDrops.contains(monsterId) || !YamlConfig.config.server.USE_MULTIPLE_SAME_EQUIP_DROP) {
-            return list;
-        }
-
-        List<MonsterDropEntry> multiDrops = extraMultiEquipDrops.get(monsterId), extra = new LinkedList<>();
-        if (multiDrops == null) {
-            multiDrops = new LinkedList<>();
-
-            for (MonsterDropEntry mde : list) {
-                if (ItemConstants.isEquipment(mde.itemId) && mde.Maximum > 1) {
-                    multiDrops.add(mde);
-
-                    int rnd = Randomizer.rand(mde.Minimum, mde.Maximum);
-                    for (int i = 0; i < rnd - 1; i++) {
-                        extra.add(mde);   // this passes copies of the equips' MDE with min/max quantity > 1, but idc on equips they are unused anyways
-                    }
-                }
-            }
-
-            if (!multiDrops.isEmpty()) {
-                extraMultiEquipDrops.put(monsterId, multiDrops);
-            } else {
-                hasNoMultiEquipDrops.add(monsterId);
-            }
-        } else {
-            for (MonsterDropEntry mde : multiDrops) {
-                int rnd = Randomizer.rand(mde.Minimum, mde.Maximum);
-                for (int i = 0; i < rnd - 1; i++) {
-                    extra.add(mde);
-                }
-            }
-        }
-
-        List<MonsterDropEntry> ret = new LinkedList<>(list);
-        ret.addAll(extra);
-
-        return ret;
+        return retrieveDrop(monsterId);
     }
 
-    public final List<MonsterDropEntry> retrieveDrop(final int monsterId) {
+    private List<MonsterDropEntry> retrieveDrop(final int monsterId) {
         if (drops.containsKey(monsterId)) {
             return drops.get(monsterId);
         }
@@ -253,8 +208,6 @@ public class MonsterInformationProvider {
 
     public final void clearDrops() {
         drops.clear();
-        hasNoMultiEquipDrops.clear();
-        extraMultiEquipDrops.clear();
         globaldrops.clear();
         continentdrops.clear();
         retrieveGlobal();
