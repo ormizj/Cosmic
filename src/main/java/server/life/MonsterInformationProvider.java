@@ -29,7 +29,6 @@ import provider.DataProvider;
 import provider.DataProviderFactory;
 import provider.DataTool;
 import provider.wz.WZFiles;
-import server.ItemInformationProvider;
 import tools.DatabaseConnection;
 import tools.Pair;
 import tools.Randomizer;
@@ -54,7 +53,6 @@ public class MonsterInformationProvider {
     private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
     private final Map<Integer, List<MonsterGlobalDropEntry>> continentdrops = new HashMap<>();
 
-    private final Map<Integer, List<Integer>> dropsChancePool = new HashMap<>();    // thanks to ronan
     private final Set<Integer> hasNoMultiEquipDrops = new HashSet<>();
     private final Map<Integer, List<MonsterDropEntry>> extraMultiEquipDrops = new HashMap<>();
 
@@ -174,32 +172,6 @@ public class MonsterInformationProvider {
         return ret;
     }
 
-    public final List<Integer> retrieveDropPool(final int monsterId) {  // ignores Quest and Party Quest items
-        if (dropsChancePool.containsKey(monsterId)) {
-            return dropsChancePool.get(monsterId);
-        }
-
-        ItemInformationProvider ii = ItemInformationProvider.getInstance();
-
-        List<MonsterDropEntry> dropList = retrieveDrop(monsterId);
-        List<Integer> ret = new ArrayList<>();
-
-        int accProp = 0;
-        for (MonsterDropEntry mde : dropList) {
-            if (!ii.isQuestItem(mde.itemId) && !ii.isPartyQuestItem(mde.itemId)) {
-                accProp += mde.chance;
-            }
-
-            ret.add(accProp);
-        }
-
-        if (accProp == 0) {
-            ret.clear();    // don't accept mobs dropping no relevant items
-        }
-        dropsChancePool.put(monsterId, ret);
-        return ret;
-    }
-
     public final void setMobAttackAnimationTime(int monsterId, int attackPos, int animationTime) {
         mobAttackAnimationTime.put(new Pair<>(monsterId, attackPos), animationTime);
     }
@@ -283,7 +255,6 @@ public class MonsterInformationProvider {
         drops.clear();
         hasNoMultiEquipDrops.clear();
         extraMultiEquipDrops.clear();
-        dropsChancePool.clear();
         globaldrops.clear();
         continentdrops.clear();
         retrieveGlobal();
