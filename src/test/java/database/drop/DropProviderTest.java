@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
+import testutil.Any;
 
 import java.util.Collections;
 import java.util.List;
@@ -82,8 +83,8 @@ class DropProviderTest {
         GlobalMonsterDrop globalDrop = new GlobalMonsterDrop(2049100, -1, 2, 3, null, 450);
         when(dropDao.getGlobalMonsterDrops()).thenReturn(List.of(globalDrop));
 
-        List<MonsterGlobalDropEntry> dropEntries1 = dropProvider.getGlobalDropEntries();
-        List<MonsterGlobalDropEntry> dropEntries2 = dropProvider.getGlobalDropEntries();
+        List<MonsterGlobalDropEntry> dropEntries1 = dropProvider.getRelevantGlobalDrops(Any.integer());
+        List<MonsterGlobalDropEntry> dropEntries2 = dropProvider.getRelevantGlobalDrops(Any.integer());
 
         assertEquals(1, dropEntries1.size());
         assertEquals(1, dropEntries2.size());
@@ -102,6 +103,28 @@ class DropProviderTest {
         assertEquals(450, dropEntry1.chance);
         assertEquals(dropEntry1.chance, dropEntry2.chance);
         verify(dropDao, times(1)).getGlobalMonsterDrops();
+    }
+
+    @Test
+    void getRelevantGlobalDrop() {
+        GlobalMonsterDrop ossyriaDrop = new GlobalMonsterDrop(Any.integer(), 2, Any.integer(), Any.integer(), Any.integer(), Any.integer());
+        when(dropDao.getGlobalMonsterDrops()).thenReturn(List.of(ossyriaDrop));
+        int ossyriaMapId = 200_000_200;
+
+        List<MonsterGlobalDropEntry> dropEntries = dropProvider.getRelevantGlobalDrops(ossyriaMapId);
+
+        assertEquals(1, dropEntries.size());
+    }
+
+    @Test
+    void getRelevantGlobalDrop_wrongContinent() {
+        GlobalMonsterDrop ellinDrop = new GlobalMonsterDrop(Any.integer(), 3, Any.integer(), Any.integer(), Any.integer(), Any.integer());
+        when(dropDao.getGlobalMonsterDrops()).thenReturn(List.of(ellinDrop));
+        int victoriaMapId = 102_000_000;
+
+        List<MonsterGlobalDropEntry> dropEntries = dropProvider.getRelevantGlobalDrops(victoriaMapId);
+
+        assertTrue(dropEntries.isEmpty());
     }
 
     // TODO: add tests for getRandomStealDrop() once ItemInformationProvider is able to be mocked.

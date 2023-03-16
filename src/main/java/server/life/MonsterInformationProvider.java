@@ -46,7 +46,6 @@ public class MonsterInformationProvider {
         return instance;
     }
 
-    private final Map<Integer, List<MonsterDropEntry>> drops = new HashMap<>();
     private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
     private final Map<Integer, List<MonsterGlobalDropEntry>> continentdrops = new HashMap<>();
 
@@ -179,7 +178,6 @@ public class MonsterInformationProvider {
     }
 
     public final void clearDrops() {
-        drops.clear();
         globaldrops.clear();
         continentdrops.clear();
         retrieveGlobal();

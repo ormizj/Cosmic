@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import server.MakerItemFactory;
-import testutil.AnyValues;
+import testutil.Any;
 import tools.Pair;
 
 import java.util.List;
@@ -80,7 +80,7 @@ class MakerInfoProviderTest {
     void getRecipeFromDb_notFound() {
         givenNoRecipe();
 
-        Optional<MakerRecipe> recipe = makerInfoProvider.getMakerRecipe(AnyValues.integer());
+        Optional<MakerRecipe> recipe = makerInfoProvider.getMakerRecipe(Any.integer());
 
         assertTrue(recipe.isEmpty());
     }
@@ -111,7 +111,7 @@ class MakerInfoProviderTest {
         MakerRecipe recipeWithCatalyst = new MakerRecipe(0, (short) 0, (short) 0, (short) 0, 0, null, null, catalyst, (short) 0, (short) 0);
         when(makerDao.getRecipe(anyInt())).thenReturn(Optional.of(recipeWithCatalyst));
 
-        Optional<Integer> stimulant = makerInfoProvider.getStimulant(AnyValues.integer());
+        Optional<Integer> stimulant = makerInfoProvider.getStimulant(Any.integer());
 
         assertTrue(stimulant.isPresent());
         assertEquals(catalyst, stimulant.get());
@@ -121,7 +121,7 @@ class MakerInfoProviderTest {
     void getStimulant_noRecipe() {
         givenNoRecipe();
 
-        Optional<Integer> stimulant = makerInfoProvider.getStimulant(AnyValues.integer());
+        Optional<Integer> stimulant = makerInfoProvider.getStimulant(Any.integer());
 
         assertTrue(stimulant.isEmpty());
     }

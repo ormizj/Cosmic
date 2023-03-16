@@ -2,7 +2,7 @@ package testutil;
 
 import database.DaoException;
 
-public class AnyValues {
+public class Any {
 
     public static String string() {
         return "string";

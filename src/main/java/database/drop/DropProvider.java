@@ -38,7 +38,14 @@ public class DropProvider {
                 monsterDrop.maxQuantity(), questId);
     }
 
-    public List<MonsterGlobalDropEntry> getGlobalDropEntries() {
+    public List<MonsterGlobalDropEntry> getRelevantGlobalDrops(int mapId) {
+        int continentId = mapId / 100_000_000;
+        return getGlobalDropEntries().stream()
+                .filter(drop -> drop.continentid < 0 || drop.continentid == continentId)
+                .toList();
+    }
+
+    private List<MonsterGlobalDropEntry> getGlobalDropEntries() {
         if (this.globalMonsterDrops == null) {
             loadGlobalDrops();
         }
