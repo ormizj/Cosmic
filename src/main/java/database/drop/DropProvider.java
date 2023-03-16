@@ -12,6 +12,7 @@ import java.util.Optional;
 public class DropProvider {
     private final DropDao dropDao;
     private final Cache<Integer, List<MonsterDrop>> monsterDropCache = Caffeine.newBuilder().build();
+    private final Cache<Integer, List<MonsterGlobalDropEntry>> globalContinentDropCache = Caffeine.newBuilder().build();
     private volatile List<GlobalMonsterDrop> globalMonsterDrops = null;
 
     public DropProvider(DropDao dropDao) {
@@ -40,6 +41,10 @@ public class DropProvider {
 
     public List<MonsterGlobalDropEntry> getRelevantGlobalDrops(int mapId) {
         int continentId = mapId / 100_000_000;
+        return globalContinentDropCache.get(continentId, this::getContinentDrops);
+    }
+
+    private List<MonsterGlobalDropEntry> getContinentDrops(int continentId) {
         return getGlobalDropEntries().stream()
                 .filter(drop -> drop.continentid < 0 || drop.continentid == continentId)
                 .toList();
