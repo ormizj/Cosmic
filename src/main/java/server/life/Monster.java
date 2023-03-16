@@ -28,6 +28,7 @@ import client.status.MonsterStatusEffect;
 import config.YamlConfig;
 import constants.id.MobId;
 import constants.skills.*;
+import database.drop.DropProvider;
 import net.packet.Packet;
 import net.server.channel.Channel;
 import net.server.coordinator.world.MonsterAggroCoordinator;
@@ -738,9 +739,9 @@ public class Monster extends AbstractLoadedLife {
         }
     }
 
-    public List<MonsterDropEntry> retrieveRelevantDrops() {
+    public List<MonsterDropEntry> retrieveRelevantDrops(DropProvider dropProvider) {
         if (this.getStats().isFriendly()) {     // thanks Conrad for noticing friendly mobs not spawning loots after a recent update
-            return MonsterInformationProvider.getInstance().retrieveEffectiveDrop(this.getId());
+            return dropProvider.getMonsterDropEntries(this.getId());
         }
 
         Map<Integer, Character> pchars = map.getMapAllPlayers();
@@ -753,7 +754,7 @@ public class Monster extends AbstractLoadedLife {
             }
         }
 
-        return LootManager.retrieveRelevantDrops(this.getId(), lootChars);
+        return LootManager.retrieveRelevantDrops(this.getId(), lootChars, dropProvider);
     }
 
     public Character killBy(final Character killer) {

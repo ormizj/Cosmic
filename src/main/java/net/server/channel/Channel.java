@@ -24,6 +24,7 @@ package net.server.channel;
 import client.Character;
 import config.YamlConfig;
 import constants.id.MapId;
+import database.drop.DropProvider;
 import net.netty.ChannelServer;
 import net.packet.Packet;
 import net.server.PlayerStorage;
@@ -73,6 +74,7 @@ public final class Channel {
     private MapManager mapManager;
     private EventScriptManager eventSM;
     private ServicesManager services;
+    private final DropProvider dropProvider;
     private final Map<Integer, HiredMerchant> hiredMerchants = new HashMap<>();
     private final Map<Integer, Integer> storedVars = new HashMap<>();
     private final Set<Integer> playersAway = new HashSet<>();
@@ -107,12 +109,13 @@ public final class Channel {
     private final Lock merchRlock;
     private final Lock merchWlock;
 
-    public Channel(final int world, final int channel, long startTime) {
+    public Channel(final int world, final int channel, long startTime, DropProvider dropProvider) {
         this.world = world;
         this.channel = channel;
+        this.dropProvider = dropProvider;
 
         this.ongoingStartTime = startTime + 10000;  // rude approach to a world's last channel boot time, placeholder for the 1st wedding reservation ever
-        this.mapManager = new MapManager(null, world, channel);
+        this.mapManager = new MapManager(null, world, channel, dropProvider);
         this.port = BASE_PORT + (this.channel - 1) + (world * 100);
         this.ip = YamlConfig.config.server.HOST + ":" + port;
 
@@ -125,11 +128,11 @@ public final class Channel {
             expedType.addAll(Arrays.asList(ExpeditionType.values()));
 
             if (Server.getInstance().isOnline()) {  // postpone event loading to improve boot time... thanks Riizade, daronhudson for noticing slow startup times
-                eventSM = new EventScriptManager(this, getEvents());
+                eventSM = new EventScriptManager(this, getEvents(), dropProvider);
                 eventSM.init();
             } else {
                 String[] ev = {"0_EXAMPLE"};
-                eventSM = new EventScriptManager(this, ev);
+                eventSM = new EventScriptManager(this, ev, dropProvider);
             }
 
             dojoStage = new int[20];
@@ -162,7 +165,7 @@ public final class Channel {
 
         eventSM.cancel();
         eventSM = null;
-        eventSM = new EventScriptManager(this, getEvents());
+        eventSM = new EventScriptManager(this, getEvents(), dropProvider);
     }
 
     public synchronized void shutdown() {

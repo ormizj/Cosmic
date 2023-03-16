@@ -20,8 +20,8 @@
 package server.loot;
 
 import client.Character;
+import database.drop.DropProvider;
 import server.life.MonsterDropEntry;
-import server.life.MonsterInformationProvider;
 import server.quest.Quest;
 
 import java.util.Collections;
@@ -63,8 +63,8 @@ public class LootManager {
         return false;
     }
 
-    public static List<MonsterDropEntry> retrieveRelevantDrops(int monsterId, List<Character> chrs) {
-        List<MonsterDropEntry> drops = MonsterInformationProvider.getInstance().retrieveEffectiveDrop(monsterId);
+    public static List<MonsterDropEntry> retrieveRelevantDrops(int monsterId, List<Character> chrs, DropProvider dropProvider) {
+        List<MonsterDropEntry> drops = dropProvider.getMonsterDropEntries(monsterId);
         if (drops.isEmpty()) {
             return Collections.emptyList();
         }

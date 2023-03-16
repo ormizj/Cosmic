@@ -36,6 +36,7 @@ import constants.game.GameConstants;
 import constants.id.MapId;
 import constants.id.MobId;
 import constants.inventory.ItemConstants;
+import database.drop.DropProvider;
 import net.packet.Packet;
 import net.server.Server;
 import net.server.channel.Channel;
@@ -109,6 +110,7 @@ public class MapleMap {
     private final int world;
     private int seats;
     private byte monsterRate;
+    private final DropProvider dropProvider;
     private boolean clock;
     private boolean boat;
     private boolean docked = false;
@@ -168,7 +170,7 @@ public class MapleMap {
     // due to the nature of loadMapFromWz (synchronized), sole function that calls 'generateMapDropRangeCache', this lock remains optional.
     private static final Lock bndLock = new ReentrantLock(true);
 
-    public MapleMap(int mapid, int world, int channel, int returnMapId, float monsterRate) {
+    public MapleMap(int mapid, int world, int channel, int returnMapId, float monsterRate, DropProvider dropProvider) {
         this.mapid = mapid;
         this.channel = channel;
         this.world = world;
@@ -177,6 +179,7 @@ public class MapleMap {
         if (this.monsterRate == 0) {
             this.monsterRate = 1;
         }
+        this.dropProvider = dropProvider;
 
         final ReadWriteLock chrLock = new ReentrantReadWriteLock(true);
         chrRLock = chrLock.readLock();
@@ -733,7 +736,8 @@ public class MapleMap {
         final List<MonsterDropEntry> visibleQuestEntry = new ArrayList<>();
         final List<MonsterDropEntry> otherQuestEntry = new ArrayList<>();
 
-        List<MonsterDropEntry> lootEntry = YamlConfig.config.server.USE_SPAWN_RELEVANT_LOOT ? mob.retrieveRelevantDrops() : mi.retrieveEffectiveDrop(mob.getId());
+        List<MonsterDropEntry> lootEntry = YamlConfig.config.server.USE_SPAWN_RELEVANT_LOOT ?
+                mob.retrieveRelevantDrops(dropProvider) : dropProvider.getMonsterDropEntries(mob.getId());
         sortDropEntries(lootEntry, dropEntry, visibleQuestEntry, otherQuestEntry, chr);     // thanks Articuno, Limit, Rohenn for noticing quest loots not showing up in only-quest item drops scenario
 
         if (lootEntry.isEmpty()) {   // thanks resinate

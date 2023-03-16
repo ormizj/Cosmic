@@ -99,34 +99,6 @@ public class MonsterInformationProvider {
         }
     }
 
-    public List<MonsterDropEntry> retrieveEffectiveDrop(final int monsterId) {
-        return retrieveDrop(monsterId);
-    }
-
-    private List<MonsterDropEntry> retrieveDrop(final int monsterId) {
-        if (drops.containsKey(monsterId)) {
-            return drops.get(monsterId);
-        }
-        final List<MonsterDropEntry> ret = new LinkedList<>();
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT itemid, chance, minimum_quantity, maximum_quantity, questid FROM drop_data WHERE dropperid = ?")) {
-            ps.setInt(1, monsterId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    ret.add(new MonsterDropEntry(rs.getInt("itemid"), rs.getInt("chance"), rs.getInt("minimum_quantity"), rs.getInt("maximum_quantity"), rs.getShort("questid")));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return ret;
-        }
-
-        drops.put(monsterId, ret);
-        return ret;
-    }
-
     public final void setMobAttackAnimationTime(int monsterId, int attackPos, int animationTime) {
         mobAttackAnimationTime.put(new Pair<>(monsterId, attackPos), animationTime);
     }

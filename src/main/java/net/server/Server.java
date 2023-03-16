@@ -361,7 +361,7 @@ public class Server {
             wldRLock.unlock();
         }
 
-        Channel channel = new Channel(worldid, channelid, getCurrentTime());
+        Channel channel = new Channel(worldid, channelid, getCurrentTime(), channelDependencies.dropProvider());
         channel.setServerMessage(YamlConfig.config.worlds.get(worldid).why_am_i_recommended);
 
         if (world.addChannel(channel)) {
@@ -434,7 +434,7 @@ public class Server {
         long bootTime = getCurrentTime();
         for (int j = 1; j <= YamlConfig.config.worlds.get(i).channels; j++) {
             int channelid = j;
-            Channel channel = new Channel(i, channelid, bootTime);
+            Channel channel = new Channel(i, channelid, bootTime, channelDependencies.dropProvider());
 
             world.addChannel(channel);
             channelInfo.put(channelid, channel.getIP());
