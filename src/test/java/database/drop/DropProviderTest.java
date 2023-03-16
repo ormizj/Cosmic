@@ -127,6 +127,39 @@ class DropProviderTest {
         assertTrue(dropEntries.isEmpty());
     }
 
+    @Test
+    void clearCaches_shouldClearMonsterDrops() {
+        MonsterDrop drop = snailShellDrop();
+        when(dropDao.getMonsterDrops(anyInt())).thenReturn(List.of(drop));
+        int monsterId = 100100;
+
+        List<MonsterDropEntry> drops1 = dropProvider.getMonsterDropEntries(monsterId);
+        dropProvider.clearCaches();
+        List<MonsterDropEntry> drops2 = dropProvider.getMonsterDropEntries(monsterId);
+
+        verify(dropDao, times(2)).getMonsterDrops(anyInt());
+        assertEquals(1, drops1.size());
+        assertEquals(1, drops2.size());
+    }
+
+    @Test
+    void clearCaches_shouldClearGlobalDrops() {
+        when(dropDao.getGlobalMonsterDrops()).thenReturn(List.of(globalDrop()));
+        int mapId = 100_000_123;
+
+        List<MonsterGlobalDropEntry> drops1 = dropProvider.getRelevantGlobalDrops(mapId);
+        dropProvider.clearCaches();
+        List<MonsterGlobalDropEntry> drops2 = dropProvider.getRelevantGlobalDrops(mapId);
+
+        verify(dropDao, times(2)).getGlobalMonsterDrops();
+        assertEquals(1, drops1.size());
+        assertEquals(1, drops2.size());
+    }
+
+    private GlobalMonsterDrop globalDrop() {
+        return new GlobalMonsterDrop(2049100, -1, 1, 1, null, 150);
+    }
+
     // TODO: add tests for getRandomStealDrop() once ItemInformationProvider is able to be mocked.
     // Currently, it does database calls (and a bunch of other stuff) in the constructor, which is problematic.
 }

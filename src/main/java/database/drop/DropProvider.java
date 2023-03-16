@@ -103,4 +103,10 @@ public class DropProvider {
         ItemInformationProvider ii = ItemInformationProvider.getInstance();
         return !ii.isQuestItem(drop.itemId()) && !ii.isPartyQuestItem(drop.itemId());
     }
+
+    public void clearCaches() {
+        this.monsterDropCache.invalidateAll();
+        this.globalContinentDropCache.invalidateAll();
+        this.globalMonsterDrops = null;
+    }
 }

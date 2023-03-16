@@ -27,13 +27,8 @@ import provider.DataProvider;
 import provider.DataProviderFactory;
 import provider.DataTool;
 import provider.wz.WZFiles;
-import tools.DatabaseConnection;
 import tools.Pair;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class MonsterInformationProvider {
@@ -46,9 +41,6 @@ public class MonsterInformationProvider {
         return instance;
     }
 
-    private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<>();
-    private final Map<Integer, List<MonsterGlobalDropEntry>> continentdrops = new HashMap<>();
-
     private final Map<Pair<Integer, Integer>, Integer> mobAttackAnimationTime = new HashMap<>();
     private final Map<MobSkill, Integer> mobSkillAnimationTime = new HashMap<>();
 
@@ -57,45 +49,7 @@ public class MonsterInformationProvider {
     private final Map<Integer, Boolean> mobBossCache = new HashMap<>();
     private final Map<Integer, String> mobNameCache = new HashMap<>();
 
-    protected MonsterInformationProvider() {
-        retrieveGlobal();
-    }
-
-    public final List<MonsterGlobalDropEntry> getRelevantGlobalDrops(int mapid) {
-        int continentid = mapid / 100000000;
-
-        List<MonsterGlobalDropEntry> contiItems = continentdrops.get(continentid);
-        if (contiItems == null) {   // continent separated global drops found thanks to marcuswoon
-            contiItems = new ArrayList<>();
-
-            for (MonsterGlobalDropEntry e : globaldrops) {
-                if (e.continentid < 0 || e.continentid == continentid) {
-                    contiItems.add(e);
-                }
-            }
-
-            continentdrops.put(continentid, contiItems);
-        }
-
-        return contiItems;
-    }
-
-    private void retrieveGlobal() {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                globaldrops.add(new MonsterGlobalDropEntry(
-                        rs.getInt("itemid"),
-                        rs.getInt("chance"),
-                        rs.getByte("continent"),
-                        rs.getInt("minimum_quantity"),
-                        rs.getInt("maximum_quantity"),
-                        rs.getShort("questid")));
-            }
-        } catch (SQLException e) {
-            log.error("Error retrieving global drops", e);
-        }
+    private MonsterInformationProvider() {
     }
 
     public final void setMobAttackAnimationTime(int monsterId, int attackPos, int animationTime) {
@@ -175,11 +129,5 @@ public class MonsterInformationProvider {
         }
 
         return mobName;
-    }
-
-    public final void clearDrops() {
-        globaldrops.clear();
-        continentdrops.clear();
-        retrieveGlobal();
     }
 }
