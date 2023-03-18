@@ -82,7 +82,7 @@ public class NPCScriptManager extends AbstractScriptManager {
 
     public void start(String filename, Client c, int npc, List<PartyCharacter> chrs) {
         try {
-            final NPCConversationManager cm = new NPCConversationManager(c, npc, chrs, true);
+            final NPCConversationManager cm = new NPCConversationManager(c, npc);
             cm.dispose();
             if (cms.containsKey(c)) {
                 return;

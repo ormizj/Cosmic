@@ -16,7 +16,7 @@ var commands;
 
 function writeHeavenMSCommands() {
     const CommandsExecutor = Java.type('client.command.CommandsExecutor');
-    commands = CommandsExecutor.getInstance().getGmCommands();
+    commands = CommandsExecutor.getInstance().getGmCommands(); // TODO: fix. CommandsExecutor is now injected rather than being a singleton, so this does not work anymore.
 }
 
 function start() {

@@ -48,6 +48,7 @@ import java.util.Set;
 public class Shop {
     private static final Logger log = LoggerFactory.getLogger(Shop.class);
     private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
+    private static final short MAX_QUANTITY_PER_PURCHASE = 1000; // Should really use max stack size for the given item
 
     private final int id;
     private final int npcId;
@@ -278,11 +279,11 @@ public class Shop {
                                 recharges.remove(Integer.valueOf(starItem.getItemId()));
                             }
                         } else {
-                            ret.addItem(new ShopItem((short) 1000, rs.getInt("itemid"), rs.getInt("price"), rs.getInt("pitch")));
+                            ret.addItem(new ShopItem(MAX_QUANTITY_PER_PURCHASE, rs.getInt("itemid"), rs.getInt("price"), rs.getInt("pitch")));
                         }
                     }
                     for (Integer recharge : recharges) {
-                        ret.addItem(new ShopItem((short) 1000, recharge, 0, 0));
+                        ret.addItem(new ShopItem((short) 0, recharge, 0, 0));
                     }
                 }
             }

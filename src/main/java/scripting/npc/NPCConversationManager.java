@@ -84,7 +84,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     private String scriptName;
     private String getText;
     private boolean itemScript;
-    private List<PartyCharacter> otherParty;
 
     private final Map<Integer, String> npcDefaultTalks = new HashMap<>();
 
@@ -102,11 +101,10 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         this(c, npc, -1, scriptName, false);
     }
 
-    public NPCConversationManager(Client c, int npc, List<PartyCharacter> otherParty, boolean test) {
+    public NPCConversationManager(Client c, int npc) {
         super(c);
         this.c = c;
         this.npc = npc;
-        this.otherParty = otherParty;
     }
 
     public NPCConversationManager(Client c, int npc, int oid, String scriptName, boolean itemScript) {
@@ -377,6 +375,9 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void openShopNPC(int id) {
+        // TODO: figure out a way to inject ShopFactory.
+        // NPCConversationManager is instantiated by NPCScriptManager, which is a static singleton.
+        // NPCScriptManager is accessed from all over, making it really difficult to structure dependencies properly.
         Shop shop = ShopFactory.getInstance().getShop(id);
 
         if (shop != null) {
