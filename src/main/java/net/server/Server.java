@@ -49,6 +49,7 @@ import database.maker.MakerDao;
 import database.maker.MakerInfoProvider;
 import database.migration.FlywayRunner;
 import database.note.NoteDao;
+import database.shop.ShopDao;
 import net.ChannelDependencies;
 import net.PacketProcessor;
 import net.netty.LoginServer;
@@ -978,7 +979,7 @@ public class Server {
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
-        ShopFactory shopFactory = new ShopFactory();
+        ShopFactory shopFactory = new ShopFactory(new ShopDao(connection));
         CommandContext commandContext = new CommandContext(dropProvider, shopFactory);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,

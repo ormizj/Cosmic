@@ -106,11 +106,11 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
     }
 
     private boolean hasShop(NPC npc) {
-        return shopFactory.getShopForNPC(npc.getId()) != null;
+        return shopFactory.getShop(npc.getId()) != null;
     }
 
     private void sendShop(NPC npc, Client c) {
-        Shop shop = shopFactory.getShopForNPC(npc.getId());
+        Shop shop = shopFactory.getShop(npc.getId());
         if (shop == null) {
             return;
         }

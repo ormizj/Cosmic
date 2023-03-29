@@ -30,25 +30,16 @@ import constants.id.ItemId;
 import constants.inventory.ItemConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.DatabaseConnection;
 import tools.PacketCreator;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Matze
  */
 public class Shop {
     private static final Logger log = LoggerFactory.getLogger(Shop.class);
-    private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
-    private static final short MAX_QUANTITY_PER_PURCHASE = 1000; // Should really use max stack size for the given item
 
     private final int id;
     private final int npcId;
@@ -56,27 +47,10 @@ public class Shop {
     private final int tokenvalue = 1000000000;
     private final int token = ItemId.GOLDEN_MAPLE_LEAF;
 
-    static {
-        for (int throwingStarId : ItemId.allThrowingStarIds()) {
-            rechargeableItems.add(throwingStarId);
-        }
-        rechargeableItems.add(ItemId.BLAZE_CAPSULE);
-        rechargeableItems.add(ItemId.GLAZE_CAPSULE);
-        rechargeableItems.add(ItemId.BALANCED_FURY);
-        rechargeableItems.remove(ItemId.DEVIL_RAIN_THROWING_STAR); // doesn't exist
-        for (int bulletId : ItemId.allBulletIds()) {
-            rechargeableItems.add(bulletId);
-        }
-    }
-
-    private Shop(int id, int npcId) {
+    public Shop(int id, int npcId, List<ShopItem> items) {
         this.id = id;
         this.npcId = npcId;
-        items = new ArrayList<>();
-    }
-
-    private void addItem(ShopItem item) {
-        items.add(item);
+        this.items = new ArrayList<>(items);
     }
 
     public void sendShop(Client c) {
@@ -240,57 +214,6 @@ public class Shop {
 
     private ShopItem findBySlot(short slot) {
         return items.get(slot);
-    }
-
-    public static Shop createFromDB(int id, boolean isShopId) {
-        Shop ret = null;
-        int shopId;
-        try (Connection con = DatabaseConnection.getConnection()) {
-            final String query;
-            if (isShopId) {
-                query = "SELECT * FROM shops WHERE shopid = ?";
-            } else {
-                query = "SELECT * FROM shops WHERE npcid = ?";
-            }
-
-            try (PreparedStatement ps = con.prepareStatement(query)) {
-                ps.setInt(1, id);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        shopId = rs.getInt("shopid");
-                        ret = new Shop(shopId, rs.getInt("npcid"));
-                    } else {
-                        return null;
-                    }
-                }
-            }
-
-            try (PreparedStatement ps = con.prepareStatement("SELECT itemid, price, pitch FROM shopitems WHERE shopid = ? ORDER BY position DESC")) {
-                ps.setInt(1, shopId);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    List<Integer> recharges = new ArrayList<>(rechargeableItems);
-                    while (rs.next()) {
-                        if (ItemConstants.isRechargeable(rs.getInt("itemid"))) {
-                            ShopItem starItem = new ShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"), rs.getInt("pitch"));
-                            ret.addItem(starItem);
-                            if (rechargeableItems.contains(starItem.getItemId())) {
-                                recharges.remove(Integer.valueOf(starItem.getItemId()));
-                            }
-                        } else {
-                            ret.addItem(new ShopItem(MAX_QUANTITY_PER_PURCHASE, rs.getInt("itemid"), rs.getInt("price"), rs.getInt("pitch")));
-                        }
-                    }
-                    for (Integer recharge : recharges) {
-                        ret.addItem(new ShopItem((short) 0, recharge, 0, 0));
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ret;
     }
 
     public int getNpcId() {

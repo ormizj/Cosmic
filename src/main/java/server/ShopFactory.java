@@ -1,8 +1,8 @@
 /*
-	This file is part of the OdinMS Maple Story Server
+    This file is part of the OdinMS Maple Story Server
     Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-		       Matthias Butz <matze@odinms.de>
-		       Jan Christian Meyer <vimes@odinms.de>
+               Matthias Butz <matze@odinms.de>
+               Jan Christian Meyer <vimes@odinms.de>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -21,45 +21,67 @@
 */
 package server;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import constants.id.ItemId;
+import constants.inventory.ItemConstants;
+import database.shop.ShopDao;
+import database.shop.ShopItem;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Matze
  */
 public class ShopFactory {
-    private final Map<Integer, Shop> shops = new HashMap<>();
-    private final Map<Integer, Shop> npcShops = new HashMap<>();
+    private static final short MAX_QUANTITY_PER_PURCHASE = 1000; // Should really use max stack size for the given item
+    private static final Set<Integer> rechargeableItemIds = rechargeableItemIds();
+    private final Cache<Integer, Shop> shops = Caffeine.newBuilder().build();
+    private final ShopDao shopDao;
 
-    private Shop loadShop(int id, boolean isShopId) {
-        Shop ret = Shop.createFromDB(id, isShopId);
-        if (ret != null) {
-            shops.put(ret.getId(), ret);
-            npcShops.put(ret.getNpcId(), ret);
-        } else if (isShopId) {
-            shops.put(id, null);
-        } else {
-            npcShops.put(id, null);
-        }
-        return ret;
+    public ShopFactory(ShopDao shopDao) {
+        this.shopDao = shopDao;
+    }
+
+    private static Set<Integer> rechargeableItemIds() {
+        IntStream stars = ItemId.allThrowingStarIds();
+        IntStream ammo = IntStream.concat(ItemId.allBulletIds(), ItemId.allBulletCapsuleIds());
+        return IntStream.concat(stars, ammo)
+                .boxed()
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public Shop getShop(int shopId) {
-        if (shops.containsKey(shopId)) {
-            return shops.get(shopId);
-        }
-        return loadShop(shopId, true);
+        return shops.get(shopId, this::loadShop);
     }
 
-    public Shop getShopForNPC(int npcId) {
-        if (npcShops.containsKey(npcId)) {
-            return npcShops.get(npcId);
+    private Shop loadShop(int shopId) {
+        Optional<database.shop.Shop> dbShop = shopDao.getShop(shopId);
+        if (dbShop.isEmpty()) {
+            throw new IllegalArgumentException("Shop with id %d does not exist".formatted(shopId));
         }
-        return loadShop(npcId, false);
+        List<ShopItem> items = shopDao.getShopItems(shopId);
+        return new Shop(dbShop.get().id(), dbShop.get().npcId(), fromDbShopItems(items));
+    }
+
+    private List<server.ShopItem> fromDbShopItems(List<ShopItem> dbItems) {
+        Stream<server.ShopItem> purchaseableItems = dbItems.stream()
+                .map(dbItem -> {
+                    short buyable = ItemConstants.isRechargeable(dbItem.itemId()) ? (short) 1 : MAX_QUANTITY_PER_PURCHASE;
+                    int pitch = dbItem.pitch() == null ? 0 : dbItem.pitch();
+                    return new server.ShopItem(buyable, dbItem.itemId(), dbItem.price(), pitch);
+                });
+        Stream<server.ShopItem> rechargeableItems = rechargeableItemIds.stream()
+                .map(rechItem -> new server.ShopItem((short) 0, rechItem, 0, 0));
+        return Stream.concat(purchaseableItems, rechargeableItems).toList();
     }
 
     public void reloadShops() {
-        shops.clear();
-        npcShops.clear();
+        shops.invalidateAll();
     }
 }
