@@ -387,20 +387,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getPlayer().resetStats();
     }
 
-    public void openShopNPC(int id) {
-        // TODO: figure out a way to inject ShopFactory.
-        // NPCConversationManager is instantiated by NPCScriptManager, which is a static singleton.
-        // NPCScriptManager is accessed from all over, making it really difficult to structure dependencies properly.
-        Shop shop = ShopFactory.getInstance().getShop(id);
-
-        if (shop != null) {
-            shop.sendShop(c);
-        } else {    // check for missing shopids thanks to resinate
-            log.warn("Shop ID: {} is missing from database.", id);
-            ShopFactory.getInstance().getShop(11000).sendShop(c);
-        }
-    }
-
     public void maxMastery() {
         for (Data skill_ : DataProviderFactory.getDataProvider(WZFiles.STRING).getData("Skill.img").getChildren()) {
             try {
