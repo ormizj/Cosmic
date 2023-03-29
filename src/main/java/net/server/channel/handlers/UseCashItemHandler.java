@@ -60,11 +60,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class UseCashItemHandler extends AbstractPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(UseCashItemHandler.class);
+    private static final int MIU_MIU_SHOP_ID = 1338;
 
     private final NoteService noteService;
+    private final ShopFactory shopFactory;
 
-    public UseCashItemHandler(NoteService noteService) {
+    public UseCashItemHandler(NoteService noteService, ShopFactory shopFactory) {
         this.noteService = noteService;
+        this.shopFactory = shopFactory;
     }
 
     @Override
@@ -508,7 +511,7 @@ public final class UseCashItemHandler extends AbstractPacketHandler {
             }
         } else if (itemType == 545) { // MiuMiu's travel store
             if (player.getShop() == null) {
-                Shop shop = ShopFactory.getInstance().getShop(1338);
+                Shop shop = shopFactory.getShop(MIU_MIU_SHOP_ID);
                 if (shop != null) {
                     shop.sendShop(c);
                     remove(c, position, itemId);

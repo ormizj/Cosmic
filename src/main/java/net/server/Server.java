@@ -65,6 +65,7 @@ import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.CashShop.CashItemFactory;
+import server.ShopFactory;
 import server.SkillbookInformationProvider;
 import server.ThreadManager;
 import server.TimerManager;
@@ -977,10 +978,11 @@ public class Server {
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
-        CommandContext commandContext = new CommandContext(dropProvider);
+        ShopFactory shopFactory = new ShopFactory();
+        CommandContext commandContext = new CommandContext(dropProvider, shopFactory);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
-                makerProcessor, dropProvider, commandsExecutor);
+                makerProcessor, dropProvider, commandsExecutor, shopFactory);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

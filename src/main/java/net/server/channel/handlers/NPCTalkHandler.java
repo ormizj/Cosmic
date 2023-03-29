@@ -30,6 +30,8 @@ import net.packet.InPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scripting.npc.NPCScriptManager;
+import server.Shop;
+import server.ShopFactory;
 import server.life.NPC;
 import server.life.PlayerNPC;
 import server.maps.MapObject;
@@ -37,6 +39,11 @@ import tools.PacketCreator;
 
 public final class NPCTalkHandler extends AbstractPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(NPCTalkHandler.class);
+    private final ShopFactory shopFactory;
+
+    public NPCTalkHandler(ShopFactory shopFactory) {
+        this.shopFactory = shopFactory;
+    }
 
     @Override
     public void handlePacket(InPacket p, Client c) {
@@ -75,7 +82,7 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
                 } else {
                     boolean hasNpcScript = NPCScriptManager.getInstance().start(c, npc.getId(), oid, null);
                     if (!hasNpcScript) {
-                        if (!npc.hasShop()) {
+                        if (!hasShop(npc)) {
                             log.warn("NPC {} ({}) is not coded", npc.getName(), npc.getId());
                             return;
                         } else if (c.getPlayer().getShop() != null) {
@@ -83,7 +90,7 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
                             return;
                         }
 
-                        npc.sendShop(c);
+                        sendShop(npc, c);
                     }
                 }
             }
@@ -96,5 +103,17 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
                 nsm.start(c, pnpc.getScriptId(), null);
             }
         }
+    }
+
+    private boolean hasShop(NPC npc) {
+        return shopFactory.getShopForNPC(npc.getId()) != null;
+    }
+
+    private void sendShop(NPC npc, Client c) {
+        Shop shop = shopFactory.getShopForNPC(npc.getId());
+        if (shop == null) {
+            return;
+        }
+        shop.sendShop(c);
     }
 }

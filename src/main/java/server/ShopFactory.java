@@ -28,12 +28,6 @@ import java.util.Map;
  * @author Matze
  */
 public class ShopFactory {
-    private static final ShopFactory instance = new ShopFactory();
-
-    public static ShopFactory getInstance() {
-        return instance;
-    }
-
     private final Map<Integer, Shop> shops = new HashMap<>();
     private final Map<Integer, Shop> npcShops = new HashMap<>();
 
