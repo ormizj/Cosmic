@@ -272,8 +272,21 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().getMeso();
     }
 
+    // TODO: refactor scripts to use this instead of "getMeso() < amount"
+    public boolean hasMeso(int amount) {
+        return getMeso() >= amount;
+    }
+
     public void gainMeso(int gain) {
         getPlayer().gainMeso(gain);
+    }
+
+    // TODO: refactor scripts to use this instead of "gainMeso(-amount)"
+    public void loseMeso(int loss) {
+        if (loss < 0) {
+            throw new IllegalArgumentException("Can only lose positive amount of mesos");
+        }
+        gainMeso(-loss);
     }
 
     public void gainExp(int gain) {
