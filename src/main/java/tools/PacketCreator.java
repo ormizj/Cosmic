@@ -2370,19 +2370,19 @@ public class PacketCreator {
         p.writeInt(sid);
         p.writeShort(items.size()); // item count
         for (ShopItem item : items) {
-            p.writeInt(item.getItemId());
-            p.writeInt(item.getPrice());
-            p.writeInt(item.getPrice() == 0 ? item.getPitch() : 0); //Perfect Pitch
+            p.writeInt(item.itemId());
+            p.writeInt(item.price());
+            p.writeInt(item.price() == 0 ? item.pitch() : 0); //Perfect Pitch
             p.writeInt(0); //Can be used x minutes after purchase
             p.writeInt(0); //Hmm
-            if (!ItemConstants.isRechargeable(item.getItemId())) {
+            if (!ItemConstants.isRechargeable(item.itemId())) {
                 p.writeShort(1); // stacksize o.o
-                p.writeShort(item.getBuyable());
+                p.writeShort(item.buyable());
             } else {
                 p.writeShort(0);
                 p.writeInt(0);
-                p.writeShort(doubleToShortBits(ii.getUnitPrice(item.getItemId())));
-                p.writeShort(ii.getSlotMax(c, item.getItemId()));
+                p.writeShort(doubleToShortBits(ii.getUnitPrice(item.itemId())));
+                p.writeShort(ii.getSlotMax(c, item.itemId()));
             }
         }
         return p;

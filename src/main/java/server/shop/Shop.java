@@ -62,7 +62,7 @@ public class Shop {
     public void buy(Client c, short slot, int itemId, short quantity) {
         ShopItem item = findBySlot(slot);
         if (item != null) {
-            if (item.getItemId() != itemId) {
+            if (item.itemId() != itemId) {
                 log.warn("Wrong slot number in shop {}", id);
                 return;
             }
@@ -70,18 +70,18 @@ public class Shop {
             return;
         }
         ItemInformationProvider ii = ItemInformationProvider.getInstance();
-        if (item.getPrice() > 0) {
-            int amount = (int) Math.min((float) item.getPrice() * quantity, Integer.MAX_VALUE);
+        if (item.price() > 0) {
+            int amount = (int) Math.min((float) item.price() * quantity, Integer.MAX_VALUE);
             if (c.getPlayer().getMeso() >= amount) {
                 if (InventoryManipulator.checkSpace(c, itemId, quantity, "")) {
                     if (!ItemConstants.isRechargeable(itemId)) { //Pets can't be bought from shops
                         InventoryManipulator.addById(c, itemId, quantity, "", -1);
                         c.getPlayer().gainMeso(-amount, false);
                     } else {
-                        short slotMax = ii.getSlotMax(c, item.getItemId());
+                        short slotMax = ii.getSlotMax(c, item.itemId());
                         quantity = slotMax;
                         InventoryManipulator.addById(c, itemId, quantity, "", -1);
-                        c.getPlayer().gainMeso(-item.getPrice(), false);
+                        c.getPlayer().gainMeso(-item.price(), false);
                     }
                     c.sendPacket(PacketCreator.shopTransaction((byte) 0));
                 } else {
@@ -92,8 +92,8 @@ public class Shop {
                 c.sendPacket(PacketCreator.shopTransaction((byte) 2));
             }
 
-        } else if (item.getPitch() > 0) {
-            int amount = (int) Math.min((float) item.getPitch() * quantity, Integer.MAX_VALUE);
+        } else if (item.pitch() > 0) {
+            int amount = (int) Math.min((float) item.pitch() * quantity, Integer.MAX_VALUE);
 
             if (c.getPlayer().getInventory(InventoryType.ETC).countById(ItemId.PERFECT_PITCH) >= amount) {
                 if (InventoryManipulator.checkSpace(c, itemId, quantity, "")) {
@@ -101,7 +101,7 @@ public class Shop {
                         InventoryManipulator.addById(c, itemId, quantity, "", -1);
                         InventoryManipulator.removeById(c, InventoryType.ETC, ItemId.PERFECT_PITCH, amount, false, false);
                     } else {
-                        short slotMax = ii.getSlotMax(c, item.getItemId());
+                        short slotMax = ii.getSlotMax(c, item.itemId());
                         quantity = slotMax;
                         InventoryManipulator.addById(c, itemId, quantity, "", -1);
                         InventoryManipulator.removeById(c, InventoryType.ETC, ItemId.PERFECT_PITCH, amount, false, false);
@@ -115,7 +115,7 @@ public class Shop {
         } else if (c.getPlayer().getInventory(InventoryType.CASH).countById(token) != 0) {
             int amount = c.getPlayer().getInventory(InventoryType.CASH).countById(token);
             int value = amount * tokenvalue;
-            int cost = item.getPrice() * quantity;
+            int cost = item.price() * quantity;
             if (c.getPlayer().getMeso() + value >= cost) {
                 int cardreduce = value - cost;
                 int diff = cardreduce + c.getPlayer().getMeso();
