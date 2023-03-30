@@ -19,7 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package server;
+package server.shop;
 
 import client.Client;
 import client.inventory.InventoryType;
@@ -30,6 +30,7 @@ import constants.id.ItemId;
 import constants.inventory.ItemConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import server.ItemInformationProvider;
 import tools.PacketCreator;
 
 import java.util.ArrayList;

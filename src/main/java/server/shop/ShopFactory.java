@@ -19,7 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package server;
+package server.shop;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -70,15 +70,15 @@ public class ShopFactory {
         return Optional.of(new Shop(dbShop.get().id(), dbShop.get().npcId(), fromDbShopItems(items)));
     }
 
-    private List<server.ShopItem> fromDbShopItems(List<ShopItem> dbItems) {
-        Stream<server.ShopItem> purchaseableItems = dbItems.stream()
+    private List<server.shop.ShopItem> fromDbShopItems(List<ShopItem> dbItems) {
+        Stream<server.shop.ShopItem> purchaseableItems = dbItems.stream()
                 .map(dbItem -> {
                     short buyable = ItemConstants.isRechargeable(dbItem.itemId()) ? (short) 1 : MAX_QUANTITY_PER_PURCHASE;
                     int pitch = dbItem.pitch() == null ? 0 : dbItem.pitch();
-                    return new server.ShopItem(buyable, dbItem.itemId(), dbItem.price(), pitch);
+                    return new server.shop.ShopItem(buyable, dbItem.itemId(), dbItem.price(), pitch);
                 });
-        Stream<server.ShopItem> rechargeableItems = rechargeableItemIds.stream()
-                .map(rechItem -> new server.ShopItem((short) 0, rechItem, 0, 0));
+        Stream<server.shop.ShopItem> rechargeableItems = rechargeableItemIds.stream()
+                .map(rechItem -> new server.shop.ShopItem((short) 0, rechItem, 0, 0));
         return Stream.concat(purchaseableItems, rechargeableItems).toList();
     }
 

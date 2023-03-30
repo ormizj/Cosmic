@@ -73,6 +73,7 @@ import server.partyquest.MonsterCarnival;
 import server.partyquest.MonsterCarnivalParty;
 import server.partyquest.PartyQuest;
 import server.quest.Quest;
+import server.shop.Shop;
 import tools.*;
 import tools.exceptions.NotEnabledException;
 import tools.packets.WeddingPackets;
