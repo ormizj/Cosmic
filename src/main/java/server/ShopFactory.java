@@ -37,11 +37,12 @@ import java.util.stream.Stream;
 
 /**
  * @author Matze
+ * @author Ponk
  */
 public class ShopFactory {
     private static final short MAX_QUANTITY_PER_PURCHASE = 1000; // Should really use max stack size for the given item
     private static final Set<Integer> rechargeableItemIds = rechargeableItemIds();
-    private final Cache<Integer, Shop> shops = Caffeine.newBuilder().build();
+    private final Cache<Integer, Optional<Shop>> shops = Caffeine.newBuilder().build();
     private final ShopDao shopDao;
 
     public ShopFactory(ShopDao shopDao) {
@@ -56,17 +57,17 @@ public class ShopFactory {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public Shop getShop(int shopId) {
+    public Optional<Shop> getShop(int shopId) {
         return shops.get(shopId, this::loadShop);
     }
 
-    private Shop loadShop(int shopId) {
+    private Optional<Shop> loadShop(int shopId) {
         Optional<database.shop.Shop> dbShop = shopDao.getShop(shopId);
         if (dbShop.isEmpty()) {
-            throw new IllegalArgumentException("Shop with id %d does not exist".formatted(shopId));
+            return Optional.empty();
         }
         List<ShopItem> items = shopDao.getShopItems(shopId);
-        return new Shop(dbShop.get().id(), dbShop.get().npcId(), fromDbShopItems(items));
+        return Optional.of(new Shop(dbShop.get().id(), dbShop.get().npcId(), fromDbShopItems(items)));
     }
 
     private List<server.ShopItem> fromDbShopItems(List<ShopItem> dbItems) {

@@ -36,6 +36,6 @@ public class GmShopCommand extends Command {
 
     @Override
     public void execute(Client c, String[] params, CommandContext ctx) {
-        ctx.shopFactory().getShop(GM_SHOP_ID).sendShop(c);
+        ctx.shopFactory().getShop(GM_SHOP_ID).ifPresent(shop -> shop.sendShop(c));
     }
 }

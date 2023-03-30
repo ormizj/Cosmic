@@ -30,7 +30,6 @@ import net.packet.InPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scripting.npc.NPCScriptManager;
-import server.Shop;
 import server.ShopFactory;
 import server.life.NPC;
 import server.life.PlayerNPC;
@@ -106,14 +105,10 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
     }
 
     private boolean hasShop(NPC npc) {
-        return shopFactory.getShop(npc.getId()) != null;
+        return shopFactory.getShop(npc.getId()).isPresent();
     }
 
     private void sendShop(NPC npc, Client c) {
-        Shop shop = shopFactory.getShop(npc.getId());
-        if (shop == null) {
-            return;
-        }
-        shop.sendShop(c);
+        shopFactory.getShop(npc.getId()).ifPresent(shop -> shop.sendShop(c));
     }
 }

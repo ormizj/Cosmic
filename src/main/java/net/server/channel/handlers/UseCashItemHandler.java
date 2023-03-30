@@ -54,6 +54,7 @@ import tools.Pair;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -511,9 +512,9 @@ public final class UseCashItemHandler extends AbstractPacketHandler {
             }
         } else if (itemType == 545) { // MiuMiu's travel store
             if (player.getShop() == null) {
-                Shop shop = shopFactory.getShop(MIU_MIU_SHOP_ID);
-                if (shop != null) {
-                    shop.sendShop(c);
+                Optional<Shop> shop = shopFactory.getShop(MIU_MIU_SHOP_ID);
+                if (shop.isPresent()) {
+                    shop.get().sendShop(c);
                     remove(c, position, itemId);
                 }
             } else {
