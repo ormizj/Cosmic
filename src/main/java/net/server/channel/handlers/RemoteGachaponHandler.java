@@ -57,6 +57,6 @@ public final class RemoteGachaponHandler extends AbstractPacketHandler {
         } else {
             npcId = gacha == 8 ? NpcId.GACHAPON_NLC : NpcId.GACHAPON_NAUTILUS;
         }
-        NPCScriptManager.getInstance().start(c, npcId, "gachaponRemote", null);
+        NPCScriptManager.getInstance().start(c, npcId, "gachaponRemote");
     }
 }

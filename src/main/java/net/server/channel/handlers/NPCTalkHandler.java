@@ -73,11 +73,11 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
 
                 // Custom handling to reduce the amount of scripts needed.
                 if (npc.getId() >= NpcId.GACHAPON_MIN && npc.getId() <= NpcId.GACHAPON_MAX) {
-                    NPCScriptManager.getInstance().start(c, npc.getId(), "gachapon", null);
+                    NPCScriptManager.getInstance().start(c, npc.getId(), "gachapon");
                 } else if (npc.getName().endsWith("Maple TV")) {
-                    NPCScriptManager.getInstance().start(c, npc.getId(), "mapleTV", null);
+                    NPCScriptManager.getInstance().start(c, npc.getId(), "mapleTV");
                 } else if (YamlConfig.config.server.USE_REBIRTH_SYSTEM && npc.getId() == YamlConfig.config.server.REBIRTH_NPC_ID) {
-                    NPCScriptManager.getInstance().start(c, npc.getId(), "rebirth", null);
+                    NPCScriptManager.getInstance().start(c, npc.getId(), "rebirth");
                 } else {
                     boolean hasNpcScript = NPCScriptManager.getInstance().start(c, npc.getId(), oid, null);
                     if (!hasNpcScript) {
@@ -97,9 +97,9 @@ public final class NPCTalkHandler extends AbstractPacketHandler {
             NPCScriptManager nsm = NPCScriptManager.getInstance();
 
             if (pnpc.getScriptId() < NpcId.CUSTOM_DEV && !nsm.isNpcScriptAvailable(c, "" + pnpc.getScriptId())) {
-                nsm.start(c, pnpc.getScriptId(), "rank_user", null);
+                nsm.start(c, pnpc.getScriptId(), "rank_user");
             } else {
-                nsm.start(c, pnpc.getScriptId(), null);
+                nsm.start(c, pnpc.getScriptId());
             }
         }
     }

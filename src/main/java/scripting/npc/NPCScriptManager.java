@@ -60,27 +60,27 @@ public class NPCScriptManager extends AbstractScriptManager {
         return engine != null;
     }
 
-    public boolean start(Client c, int npc, Character chr) {
-        return start(c, npc, -1, chr);
+    public void start(Client c, int npc) {
+        start(c, npc, -1, null);
     }
 
     public boolean start(Client c, int npc, int oid, Character chr) {
-        return start(c, npc, oid, null, chr);
+        return startNpcScript(c, npc, oid, null, chr);
     }
 
-    public boolean start(Client c, int npc, String fileName, Character chr) {
-        return start(c, npc, -1, fileName, chr);
+    public boolean start(Client c, int npc, String fileName) {
+        return startNpcScript(c, npc, -1, fileName, null);
     }
 
-    public boolean start(Client c, int npc, int oid, String fileName, Character chr) {
-        return start(c, npc, oid, fileName, chr, false, "cm");
+    public boolean startNpcScript(Client c, int npc, int oid, String fileName, Character chr) {
+        return startWithBindings(c, npc, oid, fileName, chr, false, "cm");
     }
 
-    public boolean start(Client c, ScriptedItem scriptItem, Character chr) {
-        return start(c, scriptItem.getNpc(), -1, scriptItem.getScript(), chr, true, "im");
+    public boolean startItemScript(Client c, ScriptedItem scriptItem) {
+        return startWithBindings(c, scriptItem.getNpc(), -1, scriptItem.getScript(), null, true, "im");
     }
 
-    public void start(String filename, Client c, int npc, List<PartyCharacter> chrs) {
+    public void startCpqScript(String filename, Client c, int npc, List<PartyCharacter> chrs) {
         try {
             final NPCConversationManager cm = new NPCConversationManager(c, npc);
             cm.dispose();
@@ -111,7 +111,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         }
     }
 
-    private boolean start(Client c, int npc, int oid, String fileName, Character chr, boolean itemScript, String engineName) {
+    private boolean startWithBindings(Client c, int npc, int oid, String fileName, Character chr, boolean itemScript, String engineName) {
         try {
             final NPCConversationManager cm = new NPCConversationManager(c, npc, oid, fileName, itemScript);
             if (cms.containsKey(c)) {
@@ -165,16 +165,18 @@ public class NPCScriptManager extends AbstractScriptManager {
 
     public void action(Client c, byte mode, byte type, int selection) {
         Invocable iv = scripts.get(c);
-        if (iv != null) {
-            try {
-                c.setClickedNPC();
-                iv.invokeFunction("action", mode, type, selection);
-            } catch (ScriptException | NoSuchMethodException t) {
-                if (getCM(c) != null) {
-                    log.error("Error performing NPC script action for npc: {}", getCM(c).getNpc(), t);
-                }
-                dispose(c);
+        if (iv == null) {
+            return;
+        }
+
+        try {
+            c.setClickedNPC();
+            iv.invokeFunction("action", mode, type, selection);
+        } catch (ScriptException | NoSuchMethodException t) {
+            if (getCM(c) != null) {
+                log.error("Error performing NPC script action for npc: {}", getCM(c).getNpc(), t);
             }
+            dispose(c);
         }
     }
 

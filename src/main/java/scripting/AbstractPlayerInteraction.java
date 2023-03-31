@@ -352,7 +352,7 @@ public class AbstractPlayerInteraction {
 
         c.removeClickedNPC();
         NPCScriptManager.getInstance().dispose(c);
-        NPCScriptManager.getInstance().start(c, npcid, script, null);
+        NPCScriptManager.getInstance().start(c, npcid, script);
     }
 
     public int getQuestStatus(int id) {
