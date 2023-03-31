@@ -28,6 +28,8 @@ import client.command.Command;
 import client.command.CommandContext;
 import constants.id.NpcId;
 
+import java.util.Map;
+
 public class HelpCommand extends Command {
     {
         setDescription("Show available commands.");
@@ -35,6 +37,7 @@ public class HelpCommand extends Command {
 
     @Override
     public void execute(Client client, String[] params, CommandContext ctx) {
-        client.getAbstractPlayerInteraction().openNpc(NpcId.STEWARD, "commands");
+        Map<String, Object> bindings = Map.of("ce", ctx.commandsExecutor());
+        client.getAbstractPlayerInteraction().openNpc(NpcId.STEWARD, "commands", bindings);
     }
 }

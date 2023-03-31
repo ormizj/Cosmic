@@ -980,7 +980,7 @@ public class Server {
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
         ShopFactory shopFactory = new ShopFactory(new ShopDao(connection));
-        CommandContext commandContext = new CommandContext(dropProvider, shopFactory);
+        CommandContext commandContext = new CommandContext(null, dropProvider, shopFactory);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
         ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
                 makerProcessor, dropProvider, commandsExecutor, shopFactory);

@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyMap;
+
 /**
  * @author Matze
  */
@@ -65,19 +67,24 @@ public class NPCScriptManager extends AbstractScriptManager {
     }
 
     public boolean start(Client c, int npc, int oid, Character chr) {
-        return startNpcScript(c, npc, oid, null, chr);
+        return startNpcScript(c, npc, oid, null, chr, emptyMap());
     }
 
     public boolean start(Client c, int npc, String fileName) {
-        return startNpcScript(c, npc, -1, fileName, null);
+        return startNpcScript(c, npc, -1, fileName, null, emptyMap());
     }
 
-    public boolean startNpcScript(Client c, int npc, int oid, String fileName, Character chr) {
-        return startWithBindings(c, npc, oid, fileName, chr, false, "cm");
+    public void startWithBindings(Client c, int npc, String fileName, Map<String, Object> bindings) {
+        startNpcScript(c, npc, -1, fileName, null, bindings);
+    }
+
+    private boolean startNpcScript(Client c, int npc, int oid, String fileName, Character chr,
+                                   Map<String, Object> additionalBindings) {
+        return startWithBindings(c, npc, oid, fileName, chr, false, "cm", additionalBindings);
     }
 
     public boolean startItemScript(Client c, ScriptedItem scriptItem) {
-        return startWithBindings(c, scriptItem.getNpc(), -1, scriptItem.getScript(), null, true, "im");
+        return startWithBindings(c, scriptItem.getNpc(), -1, scriptItem.getScript(), null, true, "im", emptyMap());
     }
 
     public void startCpqScript(String filename, Client c, int npc, List<PartyCharacter> chrs) {
@@ -111,7 +118,8 @@ public class NPCScriptManager extends AbstractScriptManager {
         }
     }
 
-    private boolean startWithBindings(Client c, int npc, int oid, String fileName, Character chr, boolean itemScript, String engineName) {
+    private boolean startWithBindings(Client c, int npc, int oid, String fileName, Character chr, boolean itemScript,
+                                      String engineName, Map<String, Object> bindings) {
         try {
             final NPCConversationManager cm = new NPCConversationManager(c, npc, oid, fileName, itemScript);
             if (cms.containsKey(c)) {
@@ -138,6 +146,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                     return false;
                 }
                 engine.put(engineName, cm);
+                bindings.forEach(engine::put);
 
                 Invocable iv = (Invocable) engine;
                 scripts.put(c, iv);

@@ -52,7 +52,7 @@ public class CommandsExecutor {
     private Pair<List<String>, List<String>> levelCommandsCursor;
 
     public CommandsExecutor(CommandContext commandContext) {
-        this.commandContext = commandContext;
+        this.commandContext = commandContext.with(this);
         registerCommands();
     }
 

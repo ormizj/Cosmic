@@ -346,13 +346,17 @@ public class AbstractPlayerInteraction {
     }
 
     public void openNpc(int npcid, String script) {
+        openNpc(npcid, script, Collections.emptyMap());
+    }
+
+    public void openNpc(int npcId, String script, Map<String, Object> additionalBindings) {
         if (c.getCM() != null) {
             return;
         }
 
         c.removeClickedNPC();
         NPCScriptManager.getInstance().dispose(c);
-        NPCScriptManager.getInstance().start(c, npcid, script);
+        NPCScriptManager.getInstance().startWithBindings(c, npcId, script, additionalBindings);
     }
 
     public int getQuestStatus(int id) {
