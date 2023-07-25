@@ -28,8 +28,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,15 +40,6 @@ public final class MonsterBook {
     private int bookLevel = 1;
     private final Map<Integer, Integer> cards = new LinkedHashMap<>();
     private final Lock lock = new ReentrantLock();
-
-    public Set<Entry<Integer, Integer>> getCardSet() {
-        lock.lock();
-        try {
-            return new HashSet<>(cards.entrySet());
-        } finally {
-            lock.unlock();
-        }
-    }
 
     public void addCard(final Client c, final int cardid) {
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), PacketCreator.showForeignCardEffect(c.getPlayer().getId()), false);
@@ -197,25 +189,6 @@ public final class MonsterBook {
                 ps.addBatch();
             }
             ps.executeBatch();
-        }
-    }
-
-    public static int[] getCardTierSize() {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM monstercarddata GROUP BY floor(cardid / 1000);", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-             ResultSet rs = ps.executeQuery()) {
-            rs.last();
-            int[] tierSizes = new int[rs.getRow()];
-            rs.beforeFirst();
-
-            while (rs.next()) {
-                tierSizes[rs.getRow() - 1] = rs.getInt(1);
-            }
-
-            return tierSizes;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return new int[0];
         }
     }
 }
