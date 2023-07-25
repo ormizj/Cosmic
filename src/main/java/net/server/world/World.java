@@ -451,18 +451,6 @@ public class World {
         }
     }
 
-    public void clearAccountCharacterView(Integer accountId) {
-        accountCharsLock.lock();
-        try {
-            SortedMap<Integer, Character> accChars = accountChars.remove(accountId);
-            if (accChars != null) {
-                accChars.clear();
-            }
-        } finally {
-            accountCharsLock.unlock();
-        }
-    }
-
     public void loadAccountStorage(Integer accountId) {
         if (getAccountStorage(accountId) == null) {
             registerAccountStorage(accountId);

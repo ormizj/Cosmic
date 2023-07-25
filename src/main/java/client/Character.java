@@ -1901,8 +1901,8 @@ public class Character extends AbstractCharacterObject {
                     ii.getItemEffect(itemId).applyTo(this);
                 }
 
-                if (itemId / 10000 == 238) {
-                    this.getMonsterBook().addCard(client, itemId);
+                if (ItemId.isMonsterCard(itemId)) {
+                    monsterbook.addCard(itemId, client);
                 }
                 return true;
             }
@@ -6743,7 +6743,7 @@ public class Character extends AbstractCharacterObject {
         }
     }
 
-    public static Character loadCharacterEntryFromDB(ResultSet rs, List<Item> equipped) {
+    public static Character loadCharacterViewFromDB(ResultSet rs, List<Item> equipped) {
         Character ret = new Character();
 
         try {
@@ -6794,7 +6794,7 @@ public class Character extends AbstractCharacterObject {
         return ret;
     }
 
-    public Character generateCharacterEntry() {
+    public Character createCharacterView() {
         Character ret = new Character();
 
         ret.accountid = this.getAccountID();
@@ -6854,10 +6854,16 @@ public class Character extends AbstractCharacterObject {
         updateRemainingSp(remainingSp, GameConstants.getSkillBook(job.getId()));
     }
 
-    public static Character loadCharFromDB(final int charid, Client client, boolean channelserver) throws SQLException {
+    @Deprecated
+    public static Character loadCharFromDB(int chrId, Client client, boolean channelServer) throws SQLException {
+        return loadCharFromDB(chrId, client, channelServer, new MonsterBook(Collections.emptyList()));
+    }
+
+    public static Character loadCharFromDB(final int chrId, Client client, boolean channelServer,
+                                           MonsterBook monsterBook) throws SQLException {
         Character ret = new Character();
         ret.client = client;
-        ret.id = charid;
+        ret.id = chrId;
 
         try (Connection con = DatabaseConnection.getConnection()) {
             final int mountexp;
@@ -6867,7 +6873,7 @@ public class Character extends AbstractCharacterObject {
 
             // Character info
             try (PreparedStatement ps = con.prepareStatement("SELECT * FROM characters WHERE id = ?")) {
-                ps.setInt(1, charid);
+                ps.setInt(1, chrId);
 
                 try (ResultSet rs = ps.executeQuery()) {
                     if (!rs.next()) {
@@ -6925,8 +6931,7 @@ public class Character extends AbstractCharacterObject {
                     ret.allianceRank = rs.getInt("allianceRank");
                     ret.familyId = rs.getInt("familyId");
                     ret.bookCover = rs.getInt("monsterbookcover");
-                    ret.monsterbook = new MonsterBook();
-                    ret.monsterbook.loadCards(charid);
+                    ret.monsterbook = monsterBook;
                     ret.vanquisherStage = rs.getInt("vanquisherStage");
                     ret.ariantPoints = rs.getInt("ariantPoints");
                     ret.dojoPoints = rs.getInt("dojoPoints");
@@ -6946,7 +6951,7 @@ public class Character extends AbstractCharacterObject {
                     ret.getInventory(InventoryType.ETC).setSlotLimit(rs.getByte("etcslots"));
 
                     short sandboxCheck = 0x0;
-                    for (Pair<Item, InventoryType> item : ItemFactory.INVENTORY.loadItems(ret.id, !channelserver)) {
+                    for (Pair<Item, InventoryType> item : ItemFactory.INVENTORY.loadItems(ret.id, !channelServer)) {
                         sandboxCheck |= item.getLeft().getFlag();
 
                         ret.getInventory(item.getRight()).addItemFromDB(item.getLeft());
@@ -6993,7 +6998,7 @@ public class Character extends AbstractCharacterObject {
 
                     // Items excluded from pet loot
                     try (PreparedStatement psPet = con.prepareStatement("SELECT petid FROM inventoryitems WHERE characterid = ? AND petid > -1")) {
-                        psPet.setInt(1, charid);
+                        psPet.setInt(1, chrId);
 
                         try (ResultSet rsPet = psPet.executeQuery()) {
                             while (rsPet.next()) {
@@ -7016,7 +7021,7 @@ public class Character extends AbstractCharacterObject {
                     ret.commitExcludedItems();
 
 
-                    if (channelserver) {
+                    if (channelServer) {
                         MapManager mapManager = client.getChannelServer().getMapFactory();
                         ret.map = mapManager.getMap(ret.mapid);
 
@@ -7054,7 +7059,7 @@ public class Character extends AbstractCharacterObject {
 
             // Teleport rocks
             try (PreparedStatement ps = con.prepareStatement("SELECT mapid,vip FROM trocklocations WHERE characterid = ? LIMIT 15")) {
-                ps.setInt(1, charid);
+                ps.setInt(1, chrId);
 
                 try (ResultSet rs = ps.executeQuery()) {
                     byte vip = 0;
@@ -7125,7 +7130,7 @@ public class Character extends AbstractCharacterObject {
             // Blessing of the Fairy
             try (PreparedStatement ps = con.prepareStatement("SELECT name, level FROM characters WHERE accountid = ? AND id != ? ORDER BY level DESC limit 1")) {
                 ps.setInt(1, ret.accountid);
-                ps.setInt(2, charid);
+                ps.setInt(2, chrId);
 
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -7135,12 +7140,12 @@ public class Character extends AbstractCharacterObject {
                 }
             }
 
-            if (channelserver) {
+            if (channelServer) {
                 final Map<Integer, QuestStatus> loadedQuestStatus = new LinkedHashMap<>();
 
                 // Quest status
                 try (PreparedStatement ps = con.prepareStatement("SELECT * FROM queststatus WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -7167,7 +7172,7 @@ public class Character extends AbstractCharacterObject {
                 // Quest progress
                 // opportunity for improvement on questprogress/medalmaps calls to DB
                 try (PreparedStatement ps = con.prepareStatement("SELECT * FROM questprogress WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
                     try (ResultSet rsProgress = ps.executeQuery()) {
                         while (rsProgress.next()) {
                             QuestStatus status = loadedQuestStatus.get(rsProgress.getInt("queststatusid"));
@@ -7180,7 +7185,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Medal map visit progress
                 try (PreparedStatement ps = con.prepareStatement("SELECT * FROM medalmaps WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
                     try (ResultSet rsMedalMaps = ps.executeQuery()) {
                         while (rsMedalMaps.next()) {
                             QuestStatus status = loadedQuestStatus.get(rsMedalMaps.getInt("queststatusid"));
@@ -7195,7 +7200,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Skills
                 try (PreparedStatement ps = con.prepareStatement("SELECT skillid,skilllevel,masterlevel,expiration FROM skills WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -7265,7 +7270,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Skill macros
                 try (PreparedStatement ps = con.prepareStatement("SELECT * FROM skillmacros WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -7278,7 +7283,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Key config
                 try (PreparedStatement ps = con.prepareStatement("SELECT `key`,`type`,`action` FROM keymap WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -7292,7 +7297,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Saved locations
                 try (PreparedStatement ps = con.prepareStatement("SELECT `locationtype`,`map`,`portal` FROM savedlocations WHERE characterid = ?")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
@@ -7303,7 +7308,7 @@ public class Character extends AbstractCharacterObject {
 
                 // Fame history
                 try (PreparedStatement ps = con.prepareStatement("SELECT `characterid_to`,`when` FROM famelog WHERE characterid = ? AND DATEDIFF(NOW(),`when`) < 30")) {
-                    ps.setInt(1, charid);
+                    ps.setInt(1, chrId);
 
                     try (ResultSet rs = ps.executeQuery()) {
                         ret.lastfametime = 0;
@@ -7315,7 +7320,7 @@ public class Character extends AbstractCharacterObject {
                     }
                 }
                 
-                ret.buddylist.loadFromDb(charid);
+                ret.buddylist.loadFromDb(chrId);
                 ret.storage = wserv.getAccountStorage(ret.accountid);
 
                 /* Double-check storage incase player is first time on server

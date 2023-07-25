@@ -40,6 +40,7 @@ import constants.inventory.ItemConstants;
 import constants.skills.Buccaneer;
 import constants.skills.Corsair;
 import constants.skills.ThunderBreaker;
+import database.monsterbook.MonsterCard;
 import net.encryption.InitializationVector;
 import net.opcodes.SendOpcode;
 import net.packet.ByteBufOutPacket;
@@ -526,12 +527,12 @@ public class PacketCreator {
     private static void addMonsterBookInfo(OutPacket p, Character chr) {
         p.writeInt(chr.getMonsterBookCover()); // cover
         p.writeByte(0);
-        Map<Integer, Integer> cards = chr.getMonsterBook().getCards();
+        List<MonsterCard> cards = chr.getMonsterBook().getCards();
         p.writeShort(cards.size());
-        for (Entry<Integer, Integer> all : cards.entrySet()) {
-            p.writeShort(all.getKey() % 10000); // Id
-            p.writeByte(all.getValue()); // Level
-        }
+        cards.forEach(card -> {
+            p.writeShort(card.cardId() % 10000);
+            p.writeByte(card.level());
+        });
     }
 
     public static Packet sendGuestTOS() {
@@ -2734,8 +2735,8 @@ public class PacketCreator {
 
         MonsterBook book = chr.getMonsterBook();
         p.writeInt(book.getBookLevel());
-        p.writeInt(book.getNormalCard());
-        p.writeInt(book.getSpecialCard());
+        p.writeInt(book.getNormalCards());
+        p.writeInt(book.getSpecialCards());
         p.writeInt(book.getTotalCards());
         p.writeInt(chr.getMonsterBookCover() > 0 ? ItemInformationProvider.getInstance().getCardMobId(chr.getMonsterBookCover()) : 0);
         Item medal = chr.getInventory(InventoryType.EQUIPPED).getItem((short) -49);
@@ -5978,13 +5979,29 @@ public class PacketCreator {
         return p;
     }
 
-    public static Packet showGainCard() {
+    public static Packet addMonsterCard(MonsterCard monsterCard) {
+        OutPacket p = OutPacket.create(SendOpcode.MONSTER_BOOK_SET_CARD);
+        p.writeBool(true);
+        p.writeInt(monsterCard.cardId());
+        p.writeInt(monsterCard.level());
+        return p;
+    }
+
+    public static Packet addMonsterCardAlreadyFull() {
+        OutPacket p = OutPacket.create(SendOpcode.MONSTER_BOOK_SET_CARD);
+        p.writeBool(false);
+        return p;
+    }
+
+
+
+    public static Packet showMonsterCardEffect() {
         OutPacket p = OutPacket.create(SendOpcode.SHOW_ITEM_GAIN_INCHAT);
         p.writeByte(0x0D);
         return p;
     }
 
-    public static Packet showForeignCardEffect(int id) {
+    public static Packet showForeignMonsterCardEffect(int id) {
         OutPacket p = OutPacket.create(SendOpcode.SHOW_FOREIGN_EFFECT);
         p.writeInt(id);
         p.writeByte(0x0D);

@@ -1432,7 +1432,7 @@ public class Server {
     }
 
     public void updateCharacterEntry(Character chr) {
-        Character chrView = chr.generateCharacterEntry();
+        Character chrView = chr.createCharacterView();
 
         lgnWLock.lock();
         try {
@@ -1457,7 +1457,7 @@ public class Server {
 
             worldChars.put(chrid, world);
 
-            Character chrView = chr.generateCharacterEntry();
+            Character chrView = chr.createCharacterView();
 
             World wserv = this.getWorld(chrView.getWorld());
             if (wserv != null) {
@@ -1488,47 +1488,6 @@ public class Server {
         }
     }
 
-    public void transferWorldCharacterEntry(Character chr, Integer toWorld) { // used before setting the new worldid on the character object
-        lgnWLock.lock();
-        try {
-            Integer chrid = chr.getId(), accountid = chr.getAccountID(), world = worldChars.get(chr.getId());
-            if (world != null) {
-                World wserv = this.getWorld(world);
-                if (wserv != null) {
-                    wserv.unregisterAccountCharacterView(accountid, chrid);
-                }
-            }
-
-            worldChars.put(chrid, toWorld);
-
-            Character chrView = chr.generateCharacterEntry();
-
-            World wserv = this.getWorld(toWorld);
-            if (wserv != null) {
-                wserv.registerAccountCharacterView(chrView.getAccountID(), chrView);
-            }
-        } finally {
-            lgnWLock.unlock();
-        }
-    }
-    
-    /*
-    public void deleteAccountEntry(Integer accountid) { is this even a thing?
-        lgnWLock.lock();
-        try {
-            accountCharacterCount.remove(accountid);
-            accountChars.remove(accountid);
-        } finally {
-            lgnWLock.unlock();
-        }
-    
-        for (World wserv : this.getWorlds()) {
-            wserv.clearAccountCharacterView(accountid);
-            wserv.unregisterAccountStorage(accountid);
-        }
-    }
-    */
-
     public SortedMap<Integer, List<Character>> loadAccountCharlist(int accountId, int visibleWorlds) {
         List<World> worlds = this.getWorlds();
         if (worlds.size() > visibleWorlds) {
@@ -1558,11 +1517,11 @@ public class Server {
         return worldChrs;
     }
 
-    private static Pair<Short, List<List<Character>>> loadAccountCharactersViewFromDb(int accId, int wlen) {
-        short characterCount = 0;
-        List<List<Character>> wchars = new ArrayList<>(wlen);
-        for (int i = 0; i < wlen; i++) {
-            wchars.add(i, new LinkedList<>());
+    private static Pair<Short, List<List<Character>>> loadAccountCharactersViewFromDb(int accId, int worlds) {
+        short chrCount = 0;
+        List<List<Character>> worldChrs = new ArrayList<>(worlds);
+        for (int i = 0; i < worlds; i++) {
+            worldChrs.add(i, new LinkedList<>());
         }
 
         List<Character> chars = new LinkedList<>();
@@ -1587,32 +1546,32 @@ public class Server {
                 ps.setInt(1, accId);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        characterCount++;
+                        chrCount++;
 
                         int cworld = rs.getByte("world");
-                        if (cworld >= wlen) {
+                        if (cworld >= worlds) {
                             continue;
                         }
 
                         if (cworld > curWorld) {
-                            wchars.add(curWorld, chars);
+                            worldChrs.add(curWorld, chars);
 
                             curWorld = cworld;
                             chars = new LinkedList<>();
                         }
 
                         Integer cid = rs.getInt("id");
-                        chars.add(Character.loadCharacterEntryFromDB(rs, accPlayerEquips.get(cid)));
+                        chars.add(Character.loadCharacterViewFromDB(rs, accPlayerEquips.get(cid)));
                     }
                 }
             }
 
-            wchars.add(curWorld, chars);
+            worldChrs.add(curWorld, chars);
         } catch (SQLException sqle) {
             sqle.printStackTrace();
         }
 
-        return new Pair<>(characterCount, wchars);
+        return new Pair<>(chrCount, worldChrs);
     }
 
     public void loadAllAccountsCharactersView() {

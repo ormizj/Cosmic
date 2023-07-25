@@ -38,6 +38,20 @@ class MonsterCardTest {
         assertFalse(normalCard.isSpecial());
     }
 
+    @Test
+    void notMaxLevel() {
+        var nonMaxedCard = new MonsterCard(validCardId(), (byte) 4);
+
+        assertFalse(nonMaxedCard.isMaxLevel());
+    }
+
+    @Test
+    void isMaxLevel() {
+        var maxedCard = new MonsterCard(validCardId(), (byte) 5);
+
+        assertTrue(maxedCard.isMaxLevel());
+    }
+
     private int validCardId() {
         return 2380000;
     }
