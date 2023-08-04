@@ -140,7 +140,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.NAME_TRANSFER, new TransferNameHandler());
         registerHandler(RecvOpcode.CHECK_CHAR_NAME, new TransferNameResultHandler());
         registerHandler(RecvOpcode.WORLD_TRANSFER, new TransferWorldHandler());
-        registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
+        registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler(channelDeps.channelService()));
         registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());
         registerHandler(RecvOpcode.GENERAL_CHAT, new GeneralChatHandler(channelDeps.commandsExecutor()));
         registerHandler(RecvOpcode.WHISPER, new WhisperHandler());
@@ -160,7 +160,8 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.MAGIC_ATTACK, new MagicDamageHandler(channelDeps.dropProvider()));
         registerHandler(RecvOpcode.TAKE_DAMAGE, new TakeDamageHandler());
         registerHandler(RecvOpcode.MOVE_PLAYER, new MovePlayerHandler());
-        registerHandler(RecvOpcode.USE_CASH_ITEM, new UseCashItemHandler(channelDeps.noteService(), channelDeps.shopFactory()));
+        registerHandler(RecvOpcode.USE_CASH_ITEM, new UseCashItemHandler(channelDeps.noteService(),
+                channelDeps.shopFactory()));
         registerHandler(RecvOpcode.USE_ITEM, new UseItemHandler());
         registerHandler(RecvOpcode.USE_RETURN_SCROLL, new UseItemHandler());
         registerHandler(RecvOpcode.USE_UPGRADE_SCROLL, new ScrollHandler());

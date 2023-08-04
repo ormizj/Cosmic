@@ -43,11 +43,13 @@ import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
 import database.PgDatabaseConfig;
 import database.PgDatabaseConnection;
+import database.character.CharacterSaver;
 import database.drop.DropDao;
 import database.drop.DropProvider;
 import database.maker.MakerDao;
 import database.maker.MakerInfoProvider;
 import database.migration.FlywayRunner;
+import database.monsterbook.MonsterCardDao;
 import database.note.NoteDao;
 import database.shop.ShopDao;
 import net.ChannelDependencies;
@@ -73,6 +75,7 @@ import server.expeditions.ExpeditionBossLog;
 import server.life.PlayerNPCFactory;
 import server.quest.Quest;
 import server.shop.ShopFactory;
+import service.ChannelService;
 import service.NoteService;
 import tools.DatabaseConnection;
 import tools.Pair;
@@ -975,15 +978,19 @@ public class Server {
     }
 
     private ChannelDependencies registerChannelDependencies(PgDatabaseConnection connection) {
+        MonsterCardDao monsterCardDao = new MonsterCardDao(connection);
+        CharacterSaver characterSaver = new CharacterSaver(monsterCardDao);
+        ChannelService channelService = new ChannelService(characterSaver);
         NoteService noteService = new NoteService(new NoteDao(connection));
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
         ShopFactory shopFactory = new ShopFactory(new ShopDao(connection));
-        CommandContext commandContext = new CommandContext(null, dropProvider, shopFactory);
+        CommandContext commandContext = new CommandContext(null, dropProvider, shopFactory,
+                channelService);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
-        ChannelDependencies channelDependencies = new ChannelDependencies(noteService, fredrickProcessor,
-                makerProcessor, dropProvider, commandsExecutor, shopFactory);
+        ChannelDependencies channelDependencies = new ChannelDependencies(characterSaver, noteService,
+                fredrickProcessor, makerProcessor, dropProvider, commandsExecutor, shopFactory, channelService);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

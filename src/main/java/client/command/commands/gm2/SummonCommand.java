@@ -63,7 +63,7 @@ public class SummonCommand extends Command {
 
             if (player.getClient().getChannel() != victim.getClient().getChannel()) {//And then change channel if needed.
                 victim.dropMessage("Changing channel, please wait a moment.");
-                victim.getClient().changeChannel(player.getClient().getChannel());
+                ctx.channelService().changeChannel(victim.getClient(), player.getClient().getChannel());
             }
 
             try {

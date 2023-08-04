@@ -26,11 +26,17 @@ import client.autoban.AutobanFactory;
 import net.AbstractPacketHandler;
 import net.packet.InPacket;
 import net.server.Server;
+import service.ChannelService;
 
 /**
  * @author Matze
  */
 public final class ChangeChannelHandler extends AbstractPacketHandler {
+    private final ChannelService channelService;
+
+    public ChangeChannelHandler(ChannelService channelService) {
+        this.channelService = channelService;
+    }
 
     @Override
     public final void handlePacket(InPacket p, Client c) {
@@ -45,6 +51,6 @@ public final class ChangeChannelHandler extends AbstractPacketHandler {
             return;
         }
 
-        c.changeChannel(channel);
+        channelService.changeChannel(c, channel);
     }
 }

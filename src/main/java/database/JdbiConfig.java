@@ -5,6 +5,7 @@ import database.drop.MonsterDropRowMapper;
 import database.maker.MakerIngredientRowMapper;
 import database.maker.MakerReagentRowMapper;
 import database.maker.MakerRecipeRowMapper;
+import database.monsterbook.MonsterCardRowMapper;
 import database.note.NoteRowMapper;
 import database.shop.ShopItemRowMapper;
 import database.shop.ShopRowMapper;
@@ -32,7 +33,8 @@ public final class JdbiConfig {
                 new MonsterDropRowMapper(),
                 new GlobalMonsterDropRowMapper(),
                 new ShopRowMapper(),
-                new ShopItemRowMapper()
+                new ShopItemRowMapper(),
+                new MonsterCardRowMapper()
         );
     }
 }

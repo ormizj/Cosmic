@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import client.inventory.InventoryType;
 import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.id.MapId;
@@ -59,9 +58,7 @@ import server.MapleLeafLogger;
 import server.ThreadManager;
 import server.TimerManager;
 import server.life.Monster;
-import server.maps.FieldLimit;
 import server.maps.MapleMap;
-import server.maps.MiniDungeonInfo;
 import tools.BCrypt;
 import tools.DatabaseConnection;
 import tools.HexTool;
@@ -69,7 +66,6 @@ import tools.PacketCreator;
 
 import javax.script.ScriptEngine;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -974,10 +970,9 @@ public class Client extends ChannelInboundHandlerAdapter {
     private void disconnectInternal(boolean shutdown, boolean cashshop) {//once per Client instance
         if (player != null && player.isLoggedin() && player.getClient() != null) {
             final int messengerid = player.getMessenger() == null ? 0 : player.getMessenger().getId();
-            //final int fid = player.getFamilyId();
             final BuddyList bl = player.getBuddylist();
-            final MessengerCharacter chrm = new MessengerCharacter(player, 0);
-            final GuildCharacter chrg = player.getMGC();
+            final MessengerCharacter messengerChr = new MessengerCharacter(player, 0);
+            final GuildCharacter guildChr = player.getMGC();
             final Guild guild = player.getGuild();
 
             player.cancelMagicDoor();
@@ -990,14 +985,8 @@ public class Client extends ChannelInboundHandlerAdapter {
                     if (!cashshop) {
                         if (!this.serverTransition) { // meaning not changing channels
                             if (messengerid > 0) {
-                                wserv.leaveMessenger(messengerid, chrm);
+                                wserv.leaveMessenger(messengerid, messengerChr);
                             }
-                                                        /*      
-                                                        if (fid > 0) {
-                                                                final Family family = worlda.getFamily(fid);
-                                                                family.
-                                                        }
-                                                        */
 
                             player.forfeitExpirableQuests();    //This is for those quests that you have to stay logged in for a certain amount of time
 
@@ -1022,8 +1011,8 @@ public class Client extends ChannelInboundHandlerAdapter {
                 log.error("Account stuck", e);
             } finally {
                 if (!this.serverTransition) {
-                    if (chrg != null) {
-                        chrg.setCharacter(null);
+                    if (guildChr != null) {
+                        guildChr.setCharacter(null);
                     }
                     wserv.removePlayer(player);
                     //getChannelServer().removePlayer(player); already being done
@@ -1460,61 +1449,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     public void announceHint(String msg, int length) {
         sendPacket(PacketCreator.sendHint(msg, length, 10));
         sendPacket(PacketCreator.enableActions());
-    }
-
-    public void changeChannel(int channel) {
-        Server server = Server.getInstance();
-        if (player.isBanned()) {
-            disconnect(false, false);
-            return;
-        }
-        if (!player.isAlive() || FieldLimit.CANNOTMIGRATE.check(player.getMap().getFieldLimit())) {
-            sendPacket(PacketCreator.enableActions());
-            return;
-        } else if (MiniDungeonInfo.isDungeonMap(player.getMapId())) {
-            sendPacket(PacketCreator.serverNotice(5, "Changing channels or entering Cash Shop or MTS are disabled when inside a Mini-Dungeon."));
-            sendPacket(PacketCreator.enableActions());
-            return;
-        }
-
-        String[] socket = Server.getInstance().getInetSocket(this, getWorld(), channel);
-        if (socket == null) {
-            sendPacket(PacketCreator.serverNotice(1, "Channel " + channel + " is currently disabled. Try another channel."));
-            sendPacket(PacketCreator.enableActions());
-            return;
-        }
-
-        player.closePlayerInteractions();
-        player.closePartySearchInteractions();
-
-        player.unregisterChairBuff();
-        server.getPlayerBuffStorage().addBuffsToStorage(player.getId(), player.getAllBuffs());
-        server.getPlayerBuffStorage().addDiseasesToStorage(player.getId(), player.getAllDiseases());
-        player.setDisconnectedFromChannelWorld();
-        player.notifyMapTransferToPartner(-1);
-        player.removeIncomingInvites();
-        player.cancelAllBuffs(true);
-        player.cancelAllDebuffs();
-        player.cancelBuffExpireTask();
-        player.cancelDiseaseExpireTask();
-        player.cancelSkillCooldownTask();
-        player.cancelQuestExpirationTask();
-        //Cancelling magicdoor? Nope
-        //Cancelling mounts? Noty
-
-        player.getInventory(InventoryType.EQUIPPED).checked(false); //test
-        player.getMap().removePlayer(player);
-        player.clearBanishPlayerData();
-        player.getClient().getChannelServer().removePlayer(player);
-
-        player.saveCharToDB();
-
-        player.setSessionTransitionState();
-        try {
-            sendPacket(PacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public long getSessionId() {
