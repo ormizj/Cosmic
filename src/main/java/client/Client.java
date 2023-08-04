@@ -1017,7 +1017,6 @@ public class Client extends ChannelInboundHandlerAdapter {
                     wserv.removePlayer(player);
                     //getChannelServer().removePlayer(player); already being done
 
-                    player.saveCooldowns();
                     player.cancelAllDebuffs();
                     player.saveCharToDB(true);
 
@@ -1029,7 +1028,6 @@ public class Client extends ChannelInboundHandlerAdapter {
                 } else {
                     getChannelServer().removePlayer(player);
 
-                    player.saveCooldowns();
                     player.cancelAllDebuffs();
                     player.saveCharToDB();
                 }

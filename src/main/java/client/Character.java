@@ -7990,53 +7990,6 @@ public class Character extends AbstractCharacterObject {
         }
     }
 
-    public synchronized void saveCooldowns() {
-        List<PlayerCoolDownValueHolder> listcd = getAllCooldowns();
-
-        if (!listcd.isEmpty()) {
-            try (Connection con = DatabaseConnection.getConnection()) {
-                deleteWhereCharacterId(con, "DELETE FROM cooldowns WHERE charid = ?");
-                try (PreparedStatement ps = con.prepareStatement("INSERT INTO cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)")) {
-                    ps.setInt(1, getId());
-                    for (PlayerCoolDownValueHolder cooling : listcd) {
-                        ps.setInt(2, cooling.skillId);
-                        ps.setLong(3, cooling.startTime);
-                        ps.setLong(4, cooling.length);
-                        ps.addBatch();
-                    }
-                    ps.executeBatch();
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-        }
-
-        Map<Disease, Pair<Long, MobSkill>> listds = getAllDiseases();
-        if (!listds.isEmpty()) {
-            try (Connection con = DatabaseConnection.getConnection()) {
-                deleteWhereCharacterId(con, "DELETE FROM playerdiseases WHERE charid = ?");
-                try (PreparedStatement ps = con.prepareStatement("INSERT INTO playerdiseases (charid, disease, mobskillid, mobskilllv, length) VALUES (?, ?, ?, ?, ?)")) {
-                    ps.setInt(1, getId());
-
-                    for (Entry<Disease, Pair<Long, MobSkill>> e : listds.entrySet()) {
-                        ps.setInt(2, e.getKey().ordinal());
-
-                        MobSkill ms = e.getValue().getRight();
-                        MobSkillId msId = ms.getId();
-                        ps.setInt(3, msId.type().getId());
-                        ps.setInt(4, msId.level());
-                        ps.setInt(5, e.getValue().getLeft().intValue());
-                        ps.addBatch();
-                    }
-
-                    ps.executeBatch();
-                }
-            } catch (SQLException se) {
-                se.printStackTrace();
-            }
-        }
-    }
-
     public void saveGuildStatus() {
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement("UPDATE characters SET guildid = ?, guildrank = ?, allianceRank = ? WHERE id = ?")) {
@@ -8614,8 +8567,10 @@ public class Character extends AbstractCharacterObject {
                             }
                         }
                     }
-
                 }
+
+                saveCooldowns(con);
+                saveDiseases(con);
 
                 if (cashshop != null) {
                     cashshop.save(con);
@@ -8636,6 +8591,50 @@ public class Character extends AbstractCharacterObject {
             }
         } catch (Exception e) {
             log.error("Error saving chr {}, level: {}, job: {}", name, level, job.getId(), e);
+        }
+    }
+
+    private void saveCooldowns(Connection con) throws SQLException {
+        deleteWhereCharacterId(con, "DELETE FROM cooldowns WHERE charid = ?");
+
+        List<PlayerCoolDownValueHolder> cooldowns = getAllCooldowns();
+        if (cooldowns.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement ps = con.prepareStatement("INSERT INTO cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)")) {
+            ps.setInt(1, getId());
+            for (PlayerCoolDownValueHolder cooling : cooldowns) {
+                ps.setInt(2, cooling.skillId);
+                ps.setLong(3, cooling.startTime);
+                ps.setLong(4, cooling.length);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    private void saveDiseases(Connection con) throws SQLException {
+        deleteWhereCharacterId(con, "DELETE FROM playerdiseases WHERE charid = ?");
+
+        Map<Disease, Pair<Long, MobSkill>> diseases = getAllDiseases();
+        if (diseases.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement ps = con.prepareStatement("INSERT INTO playerdiseases (charid, disease, mobskillid, mobskilllv, length) VALUES (?, ?, ?, ?, ?)")) {
+            ps.setInt(1, getId());
+
+            for (Entry<Disease, Pair<Long, MobSkill>> e : diseases.entrySet()) {
+                ps.setInt(2, e.getKey().ordinal());
+
+                MobSkill ms = e.getValue().getRight();
+                MobSkillId msId = ms.getId();
+                ps.setInt(3, msId.type().getId());
+                ps.setInt(4, msId.level());
+                ps.setInt(5, e.getValue().getLeft().intValue());
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
         }
     }
 
