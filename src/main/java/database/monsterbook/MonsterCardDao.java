@@ -36,8 +36,8 @@ public class MonsterCardDao {
                     VALUES (?, ?, ?)
                     ON CONFLICT (chr_id, card_id)
                     DO UPDATE SET level = excluded.level;""");
-            batch.bind(0, chrId);
             cards.forEach(card -> {
+                batch.bind(0, chrId);
                 batch.bind(1, card.cardId());
                 batch.bind(2, card.level());
                 batch.add();
