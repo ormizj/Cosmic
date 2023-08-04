@@ -632,17 +632,19 @@ public class MapleMap {
         }
     }
 
-    private byte dropItemsFromMonsterOnMap(List<MonsterDropEntry> dropEntry, Point pos, byte d, int chRate, byte droptype, int mobpos, Character chr, Monster mob) {
-        if (dropEntry.isEmpty()) {
+    private byte dropItemsFromMonsterOnMap(List<MonsterDropEntry> dropEntries, Point pos, byte d, int chRate,
+                                           byte droptype, int mobpos, Character chr, Monster mob) {
+        if (dropEntries.isEmpty()) {
             return d;
         }
 
-        Collections.shuffle(dropEntry);
+        List<MonsterDropEntry> shuffledDropEntries = new ArrayList<>(dropEntries);
+        Collections.shuffle(shuffledDropEntries);
 
         Item idrop;
         ItemInformationProvider ii = ItemInformationProvider.getInstance();
 
-        for (final MonsterDropEntry de : dropEntry) {
+        for (final MonsterDropEntry de : shuffledDropEntries) {
             float cardRate = chr.getCardRate(de.itemId);
             int dropChance = (int) Math.min((float) de.chance * chRate * cardRate, Integer.MAX_VALUE);
 
@@ -681,13 +683,19 @@ public class MapleMap {
         return d;
     }
 
-    private byte dropGlobalItemsFromMonsterOnMap(List<MonsterGlobalDropEntry> globalEntry, Point pos, byte d, byte droptype, int mobpos, Character chr, Monster mob) {
-        Collections.shuffle(globalEntry);
+    private byte dropGlobalItemsFromMonsterOnMap(List<MonsterGlobalDropEntry> globalDropEntries, Point pos, byte d,
+                                                 byte droptype, int mobpos, Character chr, Monster mob) {
+        if (globalDropEntries.isEmpty()) {
+            return d;
+        }
+
+        List<MonsterGlobalDropEntry> shuffledGlobalDropEntries = new ArrayList<>(globalDropEntries);
+        Collections.shuffle(shuffledGlobalDropEntries);
 
         Item idrop;
         ItemInformationProvider ii = ItemInformationProvider.getInstance();
 
-        for (final MonsterGlobalDropEntry de : globalEntry) {
+        for (final MonsterGlobalDropEntry de : shuffledGlobalDropEntries) {
             if (Randomizer.nextInt(999999) < de.chance) {
                 if (droptype == 3) {
                     pos.x = mobpos + (d % 2 == 0 ? (40 * (d + 1) / 2) : -(40 * (d / 2)));
