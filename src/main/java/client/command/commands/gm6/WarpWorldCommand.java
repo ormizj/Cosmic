@@ -55,7 +55,7 @@ public class WarpWorldCommand extends Command {
                 player.getMap().removePlayer(player);//LOL FORGOT THIS ><
                 player.setSessionTransitionState();
                 player.setWorld(worldb);
-                player.saveCharToDB();//To set the new world :O (true because else 2 player instances are created, one in both worlds)
+                ctx.characterSaver().save(player);//To set the new world :O (true because else 2 player instances are created, one in both worlds)
                 c.sendPacket(PacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
             } catch (UnknownHostException | NumberFormatException ex) {
                 ex.printStackTrace();

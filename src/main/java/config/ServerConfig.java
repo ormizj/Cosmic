@@ -91,7 +91,6 @@ public class ServerConfig {
     public boolean USE_STARTING_AP_4;
     public boolean USE_AUTOBAN;
     public boolean USE_AUTOBAN_LOG;
-    public boolean USE_AUTOSAVE;
     public boolean USE_SERVER_AUTOASSIGNER;
     public boolean USE_REFRESH_RANK_MOVE;
     public boolean USE_ENFORCE_ADMIN_ACCOUNT;
@@ -103,7 +102,6 @@ public class ServerConfig {
     public boolean USE_ENFORCE_ITEM_SUGGESTION;
     public boolean USE_ENFORCE_UNMERCHABLE_CASH;
     public boolean USE_ENFORCE_UNMERCHABLE_PET;
-    public boolean USE_ENFORCE_MERCHANT_SAVE;
     public boolean USE_ENFORCE_MDOOR_POSITION;
     public boolean USE_SPAWN_CLEAN_MDOOR;
     public boolean USE_SPAWN_LOOT_ON_ANIMATION;
@@ -220,7 +218,6 @@ public class ServerConfig {
     public boolean USE_FULL_HOLY_SYMBOL;
 
     //Character Configuration
-    public boolean USE_ADD_SLOTS_BY_LEVEL;
     public boolean USE_ADD_RATES_BY_LEVEL;
     public boolean USE_STACK_COUPON_RATES;
     public boolean USE_PERFECT_PITCH;

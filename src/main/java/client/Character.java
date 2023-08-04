@@ -50,8 +50,6 @@ import net.server.guild.Alliance;
 import net.server.guild.Guild;
 import net.server.guild.GuildCharacter;
 import net.server.guild.GuildPackets;
-import net.server.services.task.world.CharacterSaveService;
-import net.server.services.type.WorldServices;
 import net.server.world.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6449,15 +6447,6 @@ public class Character extends AbstractCharacterObject {
         }
 
         if (level % 20 == 0) {
-            if (YamlConfig.config.server.USE_ADD_SLOTS_BY_LEVEL == true) {
-                if (!isGM()) {
-                    for (byte i = 1; i < 5; i++) {
-                        gainSlots(i, 4, true);
-                    }
-
-                    this.yellowMessage("You reached level " + level + ". Congratulations! As a token of your success, your inventory has been expanded a little bit.");
-                }
-            }
             if (YamlConfig.config.server.USE_ADD_RATES_BY_LEVEL == true) { //For the rate upgrade
                 revertLastPlayerRates();
                 setPlayerRates();
@@ -8240,20 +8229,10 @@ public class Character extends AbstractCharacterObject {
         return false;
     }
 
+    // TODO: all callers should use CharacterSaver instead.
+    // It's supposed to act as a proxy to these 2 methods (as a first step towards taking full ownership of character saving)
     public void saveCharToDB() {
-        if (YamlConfig.config.server.USE_AUTOSAVE) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    saveCharToDB(true);
-                }
-            };
-
-            CharacterSaveService service = (CharacterSaveService) getWorldServer().getServiceAccess(WorldServices.SAVE_CHARACTER);
-            service.registerSaveCharacter(this.getId(), r);
-        } else {
-            saveCharToDB(true);
-        }
+        saveCharToDB(true);
     }
 
     //ItemFactory saveItems and monsterbook.saveCards are the most time consuming here.
@@ -9179,33 +9158,28 @@ public class Character extends AbstractCharacterObject {
         return slots <= 96;
     }
 
-    public boolean gainSlots(int type, int slots) {
-        return gainSlots(type, slots, true);
-    }
-
     public boolean gainSlots(int type, int slots, boolean update) {
-        int newLimit = gainSlotsInternal(type, slots);
-        if (newLimit != -1) {
-            this.saveCharToDB();
-            if (update) {
-                sendPacket(PacketCreator.updateInventorySlotLimit(type, newLimit));
-            }
-            return true;
-        } else {
+        Integer updatedLimit = gainSlotsInternal(type, slots);
+        if (updatedLimit == null) {
             return false;
         }
+
+        if (update) {
+            sendPacket(PacketCreator.updateInventorySlotLimit(type, updatedLimit));
+        }
+        return true;
     }
 
-    private int gainSlotsInternal(int type, int slots) {
+    private Integer gainSlotsInternal(int type, int slots) {
         inventory[type].lockInventory();
         try {
-            if (canGainSlots(type, slots)) {
-                int newLimit = inventory[type].getSlotLimit() + slots;
-                inventory[type].setSlotLimit(newLimit);
-                return newLimit;
-            } else {
-                return -1;
+            if (!canGainSlots(type, slots)) {
+                return null;
             }
+
+            int newLimit = inventory[type].getSlotLimit() + slots;
+            inventory[type].setSlotLimit(newLimit);
+            return newLimit;
         } finally {
             inventory[type].unlockInventory();
         }

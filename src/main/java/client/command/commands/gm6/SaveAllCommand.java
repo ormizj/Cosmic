@@ -41,7 +41,7 @@ public class SaveAllCommand extends Command {
         Character player = c.getPlayer();
         for (World world : Server.getInstance().getWorlds()) {
             for (Character chr : world.getPlayerStorage().getAllCharacters()) {
-                chr.saveCharToDB();
+                ctx.characterSaver().save(chr);
             }
         }
         String message = player.getName() + " used !saveall.";

@@ -27,6 +27,7 @@ import client.inventory.*;
 import client.keybind.KeyBinding;
 import config.YamlConfig;
 import constants.game.GameConstants;
+import database.character.CharacterLoader;
 import net.AbstractPacketHandler;
 import net.packet.InPacket;
 import net.server.PlayerBuffValueHolder;
@@ -64,9 +65,11 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(PlayerLoggedinHandler.class);
     private static final Set<Integer> attemptingLoginAccounts = new HashSet<>();
 
+    private final CharacterLoader chrLoader;
     private final NoteService noteService;
 
-    public PlayerLoggedinHandler(NoteService noteService) {
+    public PlayerLoggedinHandler(CharacterLoader chrLoader, NoteService noteService) {
+        this.chrLoader = chrLoader;
         this.noteService = noteService;
     }
 
@@ -94,7 +97,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
 
     @Override
     public final void handlePacket(InPacket p, Client c) {
-        final int cid = p.readInt(); // TODO: investigate if this is the "client id" supplied in PacketCreator#getServerIP()
+        final int chrId = p.readInt();
         final Server server = Server.getInstance();
 
         if (!c.tryacquireClient()) {
@@ -120,7 +123,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
                 }
             }
 
-            Character player = wserv.getPlayerStorage().getCharacterById(cid);
+            Character player = wserv.getPlayerStorage().getCharacterById(chrId);
 
             final Hwid hwid;
             if (player == null) {
@@ -135,21 +138,18 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
 
             c.setHwid(hwid);
 
-            if (!server.validateCharacteridInTransition(c, cid)) {
+            if (!server.validateCharacteridInTransition(c, chrId)) {
                 c.disconnect(true, false);
                 return;
             }
 
             boolean newcomer = false;
             if (player == null) {
-                try {
-                    player = Character.loadCharFromDB(cid, c, true);
+                Optional<Character> loadedChr = chrLoader.loadForChannel(chrId, c);
+                if (loadedChr.isPresent()) {
+                    player = loadedChr.get();
                     newcomer = true;
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                if (player == null) { //If you are still getting null here then please just uninstall the game >.>, we dont need you fucking with the logs
+                } else {
                     c.disconnect(true, false);
                     return;
                 }
@@ -212,13 +212,13 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
             wserv.addPlayer(player);
             player.setEnteredChannelWorld();
 
-            List<PlayerBuffValueHolder> buffs = server.getPlayerBuffStorage().getBuffsFromStorage(cid);
+            List<PlayerBuffValueHolder> buffs = server.getPlayerBuffStorage().getBuffsFromStorage(chrId);
             if (buffs != null) {
                 List<Pair<Long, PlayerBuffValueHolder>> timedBuffs = getLocalStartTimes(buffs);
                 player.silentGiveBuffs(timedBuffs);
             }
 
-            Map<Disease, Pair<Long, MobSkill>> diseases = server.getPlayerBuffStorage().getDiseasesFromStorage(cid);
+            Map<Disease, Pair<Long, MobSkill>> diseases = server.getPlayerBuffStorage().getDiseasesFromStorage(chrId);
             if (diseases != null) {
                 player.silentApplyDiseases(diseases);
             }
@@ -415,7 +415,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
             }
 
             if (newcomer) {
-                EventInstanceManager eim = EventRecallCoordinator.getInstance().recallEventInstance(cid);
+                EventInstanceManager eim = EventRecallCoordinator.getInstance().recallEventInstance(chrId);
                 if (eim != null) {
                     eim.registerPlayer(player);
                 }

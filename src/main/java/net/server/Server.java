@@ -43,6 +43,7 @@ import constants.net.OpcodeConstants;
 import constants.net.ServerConstants;
 import database.PgDatabaseConfig;
 import database.PgDatabaseConnection;
+import database.character.CharacterLoader;
 import database.character.CharacterSaver;
 import database.drop.DropDao;
 import database.drop.DropProvider;
@@ -979,6 +980,7 @@ public class Server {
 
     private ChannelDependencies registerChannelDependencies(PgDatabaseConnection connection) {
         MonsterCardDao monsterCardDao = new MonsterCardDao(connection);
+        CharacterLoader characterLoader = new CharacterLoader(monsterCardDao);
         CharacterSaver characterSaver = new CharacterSaver(monsterCardDao);
         ChannelService channelService = new ChannelService(characterSaver);
         NoteService noteService = new NoteService(new NoteDao(connection));
@@ -987,9 +989,9 @@ public class Server {
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
         ShopFactory shopFactory = new ShopFactory(new ShopDao(connection));
         CommandContext commandContext = new CommandContext(null, dropProvider, shopFactory,
-                channelService);
+                characterSaver, channelService);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
-        ChannelDependencies channelDependencies = new ChannelDependencies(characterSaver, noteService,
+        ChannelDependencies channelDependencies = new ChannelDependencies(characterLoader, characterSaver, noteService,
                 fredrickProcessor, makerProcessor, dropProvider, commandsExecutor, shopFactory, channelService);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);

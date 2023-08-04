@@ -33,6 +33,7 @@ import config.YamlConfig;
 import constants.game.GameConstants;
 import constants.id.ItemId;
 import constants.inventory.ItemConstants;
+import database.character.CharacterSaver;
 import net.AbstractPacketHandler;
 import net.packet.InPacket;
 import org.slf4j.Logger;
@@ -53,6 +54,11 @@ import java.util.Arrays;
  */
 public final class PlayerInteractionHandler extends AbstractPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(PlayerInteractionHandler.class);
+    private final CharacterSaver chrSaver;
+
+    public PlayerInteractionHandler(CharacterSaver chrSaver) {
+        this.chrSaver = chrSaver;
+    }
 
     public enum Action {
         CREATE(0),
@@ -644,10 +650,6 @@ public final class PlayerInteractionHandler extends AbstractPacketHandler {
 
                     c.sendPacket(PacketCreator.updateHiredMerchant(merchant, chr));
 
-                    if (YamlConfig.config.server.USE_ENFORCE_MERCHANT_SAVE) {
-                        chr.saveCharToDB(false);
-                    }
-
                     try {
                         merchant.saveItems(false);   // thanks Masterrulax for realizing yet another dupe with merchants/Fredrick
                     } catch (SQLException ex) {
@@ -771,7 +773,7 @@ public final class PlayerInteractionHandler extends AbstractPacketHandler {
                         return;
                     }
 
-                    merchant.takeItemBack(slot, chr);
+                    merchant.takeItemBack(slot, chr, chrSaver);
                 }
             } else if (mode == Action.CLOSE_MERCHANT.getCode()) {
                 if (isTradeOpen(chr)) {

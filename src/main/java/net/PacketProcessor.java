@@ -152,7 +152,8 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.ITEM_SORT, new InventoryMergeHandler());
         registerHandler(RecvOpcode.ITEM_MOVE, new ItemMoveHandler());
         registerHandler(RecvOpcode.MESO_DROP, new MesoDropHandler());
-        registerHandler(RecvOpcode.PLAYER_LOGGEDIN, new PlayerLoggedinHandler(channelDeps.noteService()));
+        registerHandler(RecvOpcode.PLAYER_LOGGEDIN, new PlayerLoggedinHandler(channelDeps.characterLoader(),
+                channelDeps.noteService()));
         registerHandler(RecvOpcode.CHANGE_MAP, new ChangeMapHandler());
         registerHandler(RecvOpcode.MOVE_LIFE, new MoveLifeHandler());
         registerHandler(RecvOpcode.CLOSE_RANGE_ATTACK, new CloseRangeDamageHandler(channelDeps.dropProvider()));
@@ -174,7 +175,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.USE_INNER_PORTAL, new InnerPortalHandler());
         registerHandler(RecvOpcode.CANCEL_BUFF, new CancelBuffHandler());
         registerHandler(RecvOpcode.CANCEL_ITEM_EFFECT, new CancelItemEffectHandler());
-        registerHandler(RecvOpcode.PLAYER_INTERACTION, new PlayerInteractionHandler());
+        registerHandler(RecvOpcode.PLAYER_INTERACTION, new PlayerInteractionHandler(channelDeps.characterSaver()));
         registerHandler(RecvOpcode.RPS_ACTION, new RPSActionHandler());
         registerHandler(RecvOpcode.DISTRIBUTE_AP, new DistributeAPHandler());
         registerHandler(RecvOpcode.DISTRIBUTE_SP, new DistributeSPHandler());
@@ -186,8 +187,8 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.DENY_PARTY_REQUEST, new DenyPartyRequestHandler());
         registerHandler(RecvOpcode.MULTI_CHAT, new MultiChatHandler());
         registerHandler(RecvOpcode.USE_DOOR, new DoorHandler());
-        registerHandler(RecvOpcode.ENTER_MTS, new EnterMTSHandler());
-        registerHandler(RecvOpcode.ENTER_CASHSHOP, new EnterCashShopHandler());
+        registerHandler(RecvOpcode.ENTER_MTS, new EnterMTSHandler(channelDeps.characterSaver()));
+        registerHandler(RecvOpcode.ENTER_CASHSHOP, new EnterCashShopHandler(channelDeps.characterSaver()));
         registerHandler(RecvOpcode.DAMAGE_SUMMON, new DamageSummonHandler());
         registerHandler(RecvOpcode.MOVE_SUMMON, new MoveSummonHandler());
         registerHandler(RecvOpcode.SUMMON_ATTACK, new SummonDamageHandler(channelDeps.dropProvider()));
@@ -277,7 +278,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.FREDRICK_ACTION, new FredrickHandler(channelDeps.fredrickProcessor()));
         registerHandler(RecvOpcode.MONSTER_CARNIVAL, new MonsterCarnivalHandler());
         registerHandler(RecvOpcode.REMOTE_STORE, new RemoteStoreHandler());
-        registerHandler(RecvOpcode.WEDDING_ACTION, new WeddingHandler());
+        registerHandler(RecvOpcode.WEDDING_ACTION, new WeddingHandler(channelDeps.characterSaver()));
         registerHandler(RecvOpcode.WEDDING_TALK, new WeddingTalkHandler());
         registerHandler(RecvOpcode.WEDDING_TALK_MORE, new WeddingTalkMoreHandler());
         registerHandler(RecvOpcode.WATER_OF_LIFE, new UseWaterOfLifeHandler());
