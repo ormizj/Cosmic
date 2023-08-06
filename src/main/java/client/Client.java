@@ -509,19 +509,19 @@ public class Client extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public int finishLogin() {
+    public boolean finishLogin() {
         encoderLock.lock();
         try {
             if (getLoginState() > LOGIN_NOTLOGGEDIN) { // 0 = LOGIN_NOTLOGGEDIN, 1= LOGIN_SERVER_TRANSITION, 2 = LOGIN_LOGGEDIN
                 loggedIn = false;
-                return 7;
+                return false;
             }
             updateLoginState(Client.LOGIN_LOGGEDIN);
         } finally {
             encoderLock.unlock();
         }
 
-        return 0;
+        return true;
     }
 
     public void setPin(String pin) {
@@ -917,18 +917,18 @@ public class Client extends ChannelInboundHandlerAdapter {
     }
 
     public final void disconnect(final boolean shutdown, final boolean cashshop) {
-        if (canDisconnect()) {
+        if (tryDisconnect()) {
             ThreadManager.getInstance().newTask(() -> disconnectInternal(shutdown, cashshop));
         }
     }
 
     public final void forceDisconnect() {
-        if (canDisconnect()) {
+        if (tryDisconnect()) {
             disconnectInternal(true, false);
         }
     }
 
-    private synchronized boolean canDisconnect() {
+    private synchronized boolean tryDisconnect() {
         if (disconnecting) {
             return false;
         }

@@ -123,7 +123,7 @@ public final class LoginPasswordHandler implements PacketHandler {
             c.sendPacket(PacketCreator.getLoginFailed(loginok));
             return;
         }
-        if (c.finishLogin() == 0) {
+        if (c.finishLogin()) {
             c.checkChar(c.getAccID());
             login(c);
         } else {
