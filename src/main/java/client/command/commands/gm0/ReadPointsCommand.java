@@ -15,11 +15,10 @@ public class ReadPointsCommand extends Command {
 
         Character player = client.getPlayer();
         if (params.length > 2) {
-            player.yellowMessage("Syntax: @points (rp|vp|all)");
+            player.yellowMessage("Syntax: @points (rp|all)");
             return;
         } else if (params.length == 0) {
-            player.yellowMessage("RewardPoints: " + player.getRewardPoints() + " | "
-                    + "VotePoints: " + player.getClient().getVotePoints());
+            player.yellowMessage("RewardPoints: " + player.getRewardPoints());
             return;
         }
 
@@ -27,12 +26,8 @@ public class ReadPointsCommand extends Command {
             case "rp":
                 player.yellowMessage("RewardPoints: " + player.getRewardPoints());
                 break;
-            case "vp":
-                player.yellowMessage("VotePoints: " + player.getClient().getVotePoints());
-                break;
             default:
-                player.yellowMessage("RewardPoints: " + player.getRewardPoints() + " | "
-                        + "VotePoints: " + player.getClient().getVotePoints());
+                player.yellowMessage("RewardPoints: " + player.getRewardPoints());
                 break;
         }
     }

@@ -56,7 +56,6 @@ import scripting.npc.NPCConversationManager;
 import scripting.npc.NPCScriptManager;
 import scripting.quest.QuestActionManager;
 import scripting.quest.QuestScriptManager;
-import server.MapleLeafLogger;
 import server.ThreadManager;
 import server.TimerManager;
 import server.life.Monster;
@@ -73,7 +72,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.Date;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -124,8 +122,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     private final Lock announcerLock = new ReentrantLock(true);
     // thanks Masterrulax & try2hack for pointing out a bottleneck issue with shared locks, shavit for noticing an opportunity for improvement
     private Calendar tempBanCalendar;
-    private int votePoints;
-    private int voteTime = -1;
     private int visibleWorlds;
     private long lastNpcClick;
     private long lastPacket = System.currentTimeMillis();
@@ -370,38 +366,6 @@ public class Client extends ChannelInboundHandlerAdapter {
             e.printStackTrace();
         }
         return ret;
-    }
-
-    public int getVoteTime() {
-        if (voteTime != -1) {
-            return voteTime;
-        }
-
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT date FROM bit_votingrecords WHERE UPPER(account) = UPPER(?)")) {
-            ps.setString(1, accountName);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return -1;
-                }
-                voteTime = rs.getInt("date");
-            }
-        } catch (SQLException e) {
-            log.error("Error getting voting time");
-            return -1;
-        }
-        return voteTime;
-    }
-
-    public void resetVoteTime() {
-        voteTime = -1;
-    }
-
-    public boolean hasVotedAlready() {
-        Date currentDate = new Date();
-        int timeNow = (int) (currentDate.getTime() / 1000);
-        int difference = (timeNow - getVoteTime());
-        return difference < 86400 && difference > 0;
     }
 
     public boolean hasBannedHWID() {
@@ -1232,50 +1196,6 @@ public class Client extends ChannelInboundHandlerAdapter {
                     w.getPlayerStorage().removePlayer(chr.getId());
                 }
             }
-        }
-    }
-
-    public int getVotePoints() {
-        int points = 0;
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT `votepoints` FROM accounts WHERE id = ?")) {
-            ps.setInt(1, accId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    points = rs.getInt("votepoints");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        votePoints = points;
-        return votePoints;
-    }
-
-    public void addVotePoints(int points) {
-        votePoints += points;
-        saveVotePoints();
-    }
-
-    public void useVotePoints(int points) {
-        if (points > votePoints) {
-            //Should not happen, should probably log this
-            return;
-        }
-        votePoints -= points;
-        saveVotePoints();
-        MapleLeafLogger.log(player, false, Integer.toString(points));
-    }
-
-    private void saveVotePoints() {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET votepoints = ? WHERE id = ?")) {
-            ps.setInt(1, votePoints);
-            ps.setInt(2, accId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
