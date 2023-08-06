@@ -285,10 +285,6 @@ public class Client extends ChannelInboundHandlerAdapter {
         return remoteAddress;
     }
 
-    public boolean isInTransition() {
-        return inTransition;
-    }
-
     public EventManager getEventManager(String event) {
         return getChannelServer().getEventSM().getEventManager(event);
     }
@@ -317,14 +313,6 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        return chars;
-    }
-
-    public List<String> loadCharacterNames(int worldId) {
-        List<String> chars = new ArrayList<>(15);
-        for (CharNameAndId cni : loadCharactersInternal(worldId)) {
-            chars.add(cni.name);
         }
         return chars;
     }
@@ -426,21 +414,6 @@ public class Client extends ChannelInboundHandlerAdapter {
         return ret;
     }
 
-    private void loadHWIDIfNescessary() throws SQLException {
-        if (hwid == null) {
-            try (Connection con = DatabaseConnection.getConnection();
-                 PreparedStatement ps = con.prepareStatement("SELECT hwid FROM accounts WHERE id = ?")) {
-                ps.setInt(1, accId);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        hwid = new Hwid(rs.getString("hwid"));
-                    }
-                }
-            }
-        }
-    }
-
     // TODO: Recode to close statements...
     private void loadMacsIfNescessary() throws SQLException {
         if (macs.isEmpty()) {
@@ -457,20 +430,6 @@ public class Client extends ChannelInboundHandlerAdapter {
                     }
                 }
             }
-        }
-    }
-
-    public void banHWID() {
-        try {
-            loadHWIDIfNescessary();
-
-            try (Connection con = DatabaseConnection.getConnection();
-                 PreparedStatement ps = con.prepareStatement("INSERT INTO hwidbans (hwid) VALUES (?)")) {
-                ps.setString(1, hwid.hwid());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -706,23 +665,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
     public Calendar getTempBanCalendar() {
         return tempBanCalendar;
-    }
-
-    public boolean hasBeenBanned() {
-        return tempBanCalendar != null;
-    }
-
-    public static long dottedQuadToLong(String dottedQuad) throws RuntimeException {
-        String[] quads = dottedQuad.split("\\.");
-        if (quads.length != 4) {
-            throw new RuntimeException("Invalid IP Address format.");
-        }
-        long ipAddress = 0;
-        for (int i = 0; i < 4; i++) {
-            int quad = Integer.parseInt(quads[i]);
-            ipAddress += (long) (quad % 256) * (long) Math.pow(256, 4 - i);
-        }
-        return ipAddress;
     }
 
     public void updateHwid(Hwid hwid) {
@@ -1215,20 +1157,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
     public void releaseClient() {
         unlockClient();
-        actionsSemaphore.release();
-    }
-
-    public boolean tryacquireEncoder() {
-        if (actionsSemaphore.tryAcquire()) {
-            encoderLock.lock();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void unlockEncoder() {
-        encoderLock.unlock();
         actionsSemaphore.release();
     }
 
