@@ -28,6 +28,7 @@ import client.keybind.KeyBinding;
 import config.YamlConfig;
 import constants.game.GameConstants;
 import database.character.CharacterLoader;
+import model.CharacterIdentity;
 import net.AbstractPacketHandler;
 import net.netty.GameViolationException;
 import net.packet.InPacket;
@@ -332,9 +333,9 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
 
             c.sendPacket(PacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
 
-            CharacterNameAndId pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
+            CharacterIdentity pendingBuddyRequest = c.getPlayer().getBuddylist().pollPendingRequest();
             if (pendingBuddyRequest != null) {
-                c.sendPacket(PacketCreator.requestBuddylistAdd(pendingBuddyRequest.getId(), c.getPlayer().getId(), pendingBuddyRequest.getName()));
+                c.sendPacket(PacketCreator.requestBuddylistAdd(pendingBuddyRequest.id(), c.getPlayer().getId(), pendingBuddyRequest.name()));
             }
 
             c.sendPacket(PacketCreator.updateGender(player));
