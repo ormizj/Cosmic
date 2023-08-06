@@ -29,6 +29,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateEvent;
 import net.PacketHandler;
 import net.PacketProcessor;
+import net.netty.DisconnectException;
+import net.netty.GameViolationException;
 import net.netty.InvalidPacketHeaderException;
 import net.packet.InPacket;
 import net.packet.Packet;
@@ -201,6 +203,8 @@ public class Client extends ChannelInboundHandlerAdapter {
             try {
                 MonitoredChrLogger.logPacketIfMonitored(this, opcode, packet.getBytes());
                 handler.handlePacket(packet, this);
+            } catch (GameViolationException gve) {
+                throw new DisconnectException(this, gve.getMessage());
             } catch (final Throwable t) {
                 final String chrInfo = player != null ? player.getName() + " on map " + player.getMapId() : "?";
                 log.warn("Error in packet handler {}. Chr {}, account {}. Packet: {}", handler.getClass().getSimpleName(),
@@ -229,6 +233,8 @@ public class Client extends ChannelInboundHandlerAdapter {
             SessionCoordinator.getInstance().closeSession(this, true);
         } else if (cause instanceof IOException) {
             closeMapleSession();
+        } else {
+            ctx.fireExceptionCaught(cause);
         }
     }
 
@@ -1018,7 +1024,7 @@ public class Client extends ChannelInboundHandlerAdapter {
                     //getChannelServer().removePlayer(player); already being done
 
                     player.cancelAllDebuffs();
-                    player.saveCharToDB(true);
+                    player.saveCharToDB();
 
                     player.logOff();
                     if (YamlConfig.config.server.INSTANT_NAME_CHANGE) {

@@ -30,6 +30,7 @@ import constants.skills.Evan;
 import constants.skills.FPArchMage;
 import constants.skills.ILArchMage;
 import database.drop.DropProvider;
+import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.packet.Packet;
 import server.StatEffect;
@@ -56,9 +57,7 @@ public final class MagicDamageHandler extends AbstractDealDamageHandler {
 
         if (chr.getBuffEffect(BuffStat.MORPH) != null) {
             if (chr.getBuffEffect(BuffStat.MORPH).isMorphWithoutAttack()) {
-                // How are they attacking when the client won't let them?
-                chr.getClient().disconnect(false, false);
-                return;
+                throw new GameViolationException("Attempt to attack with morph skill that disallows attacking");
             }
         }
 

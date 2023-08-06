@@ -1,5 +1,6 @@
 package net.netty;
 
+import database.character.CharacterSaver;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -9,12 +10,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class ChannelServer extends AbstractServer {
     private final int world;
     private final int channel;
+    private final CharacterSaver characterSaver;
     private Channel nettyChannel;
 
-    public ChannelServer(int port, int world, int channel) {
+    public ChannelServer(int port, int world, int channel, CharacterSaver characterSaver) {
         super(port);
         this.world = world;
         this.channel = channel;
+        this.characterSaver = characterSaver;
     }
 
     @Override
@@ -24,7 +27,7 @@ public class ChannelServer extends AbstractServer {
         ServerBootstrap bootstrap = new ServerBootstrap()
                 .group(parentGroup, childGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelServerInitializer(world, channel));
+                .childHandler(new ChannelServerInitializer(world, channel, characterSaver));
 
         this.nettyChannel = bootstrap.bind(port).syncUninterruptibly().channel();
     }

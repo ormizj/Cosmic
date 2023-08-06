@@ -367,7 +367,7 @@ public class Server {
             wldRLock.unlock();
         }
 
-        Channel channel = new Channel(worldid, channelid, getCurrentTime(), channelDependencies.dropProvider());
+        Channel channel = new Channel(worldid, channelid, getCurrentTime(), channelDependencies);
         channel.setServerMessage(YamlConfig.config.worlds.get(worldid).why_am_i_recommended);
 
         if (world.addChannel(channel)) {
@@ -440,7 +440,7 @@ public class Server {
         long bootTime = getCurrentTime();
         for (int j = 1; j <= YamlConfig.config.worlds.get(i).channels; j++) {
             int channelid = j;
-            Channel channel = new Channel(i, channelid, bootTime, channelDependencies.dropProvider());
+            Channel channel = new Channel(i, channelid, bootTime, channelDependencies);
 
             world.addChannel(channel);
             channelInfo.put(channelid, channel.getIP());
@@ -928,7 +928,7 @@ public class Server {
             }
         }
 
-        loginServer = initLoginServer(8484);
+        loginServer = initLoginServer(8484, channelDependencies.characterSaver());
 
         log.info("Listening on port 8484");
 
@@ -999,8 +999,8 @@ public class Server {
         return channelDependencies;
     }
 
-    private LoginServer initLoginServer(int port) {
-        LoginServer loginServer = new LoginServer(port);
+    private LoginServer initLoginServer(int port, CharacterSaver characterSaver) {
+        LoginServer loginServer = new LoginServer(port, characterSaver);
         loginServer.start();
         return loginServer;
     }

@@ -24,6 +24,7 @@ package net.server.channel.handlers;
 import client.Client;
 import client.autoban.AutobanFactory;
 import net.AbstractPacketHandler;
+import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.server.Server;
 import service.ChannelService;
@@ -45,8 +46,7 @@ public final class ChangeChannelHandler extends AbstractPacketHandler {
         c.getPlayer().getAutobanManager().setTimestamp(6, Server.getInstance().getCurrentTimestamp(), 3);
         if (c.getChannel() == channel) {
             AutobanFactory.GENERAL.alert(c.getPlayer(), "CCing to same channel.");
-            c.disconnect(false, false);
-            return;
+            throw new GameViolationException("Change to same channel");
         } else if (c.getPlayer().getCashShop().isOpened() || c.getPlayer().getMiniGame() != null || c.getPlayer().getPlayerShop() != null) {
             return;
         }

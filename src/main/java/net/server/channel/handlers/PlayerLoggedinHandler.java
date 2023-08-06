@@ -29,6 +29,7 @@ import config.YamlConfig;
 import constants.game.GameConstants;
 import database.character.CharacterLoader;
 import net.AbstractPacketHandler;
+import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.server.PlayerBuffValueHolder;
 import net.server.Server;
@@ -108,8 +109,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
         try {
             World wserv = server.getWorld(c.getWorld());
             if (wserv == null) {
-                c.disconnect(true, false);
-                return;
+                throw new GameViolationException("World not found");
             }
 
             Channel cserv = wserv.getChannel(c.getChannel());
@@ -118,8 +118,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
                 cserv = wserv.getChannel(c.getChannel());
 
                 if (cserv == null) {
-                    c.disconnect(true, false);
-                    return;
+                    throw new GameViolationException("Channel not found");
                 }
             }
 
@@ -129,8 +128,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
             if (player == null) {
                 hwid = SessionCoordinator.getInstance().pickLoginSessionHwid(c);
                 if (hwid == null) {
-                    c.disconnect(true, false);
-                    return;
+                    throw new GameViolationException("Unable to pick hwid");
                 }
             } else {
                 hwid = player.getClient().getHwid();
@@ -139,8 +137,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
             c.setHwid(hwid);
 
             if (!server.validateCharacteridInTransition(c, chrId)) {
-                c.disconnect(true, false);
-                return;
+                throw new GameViolationException("Attempt to enter game without chr id in transition");
             }
 
             boolean newcomer = false;
@@ -150,8 +147,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
                     player = loadedChr.get();
                     newcomer = true;
                 } else {
-                    c.disconnect(true, false);
-                    return;
+                    throw new GameViolationException("Unable to load chr");
                 }
             }
             c.setPlayer(player);
@@ -184,7 +180,7 @@ public final class PlayerLoggedinHandler extends AbstractPacketHandler {
                         c.setAccID(0);
 
                         if (state == Client.LOGIN_LOGGEDIN) {
-                            c.disconnect(true, false);
+                            throw new GameViolationException("Attempt to log in when already logged in");
                         } else {
                             c.sendPacket(PacketCreator.getAfterLoginError(7));
                         }

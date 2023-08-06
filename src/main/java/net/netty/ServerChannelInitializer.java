@@ -3,6 +3,7 @@ package net.netty;
 import client.Client;
 import config.YamlConfig;
 import constants.net.ServerConstants;
+import database.character.CharacterSaver;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -30,7 +31,13 @@ public abstract class ServerChannelInitializer extends ChannelInitializer<Socket
     private static final ChannelHandler sendPacketLogger = new OutPacketLogger();
     private static final ChannelHandler receivePacketLogger = new InPacketLogger();
 
+    private final DisconnectHandler disconnectingInboundHandler;
+
     static final AtomicLong sessionId = new AtomicLong(7777);
+
+    public ServerChannelInitializer(CharacterSaver characterSaver) {
+        this.disconnectingInboundHandler = new DisconnectHandler(characterSaver);
+    }
 
     String getRemoteAddress(Channel channel) {
         String remoteAddress = "null";
@@ -62,6 +69,7 @@ public abstract class ServerChannelInitializer extends ChannelInitializer<Socket
         pipeline.addLast("IdleStateHandler", new IdleStateHandler(0, 0, IDLE_TIME_SECONDS));
         pipeline.addLast("PacketCodec", new PacketCodec(ClientCyphers.of(sendIv, recvIv)));
         pipeline.addLast("Client", client);
+        pipeline.addLast("Disconnect", disconnectingInboundHandler);
 
         if (LOG_PACKETS) {
             pipeline.addBefore("Client", "SendPacketLogger", sendPacketLogger);

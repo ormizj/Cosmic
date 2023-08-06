@@ -24,7 +24,9 @@ package net.server.channel;
 import client.Character;
 import config.YamlConfig;
 import constants.id.MapId;
+import database.character.CharacterSaver;
 import database.drop.DropProvider;
+import net.ChannelDependencies;
 import net.netty.ChannelServer;
 import net.packet.Packet;
 import net.server.PlayerStorage;
@@ -109,10 +111,10 @@ public final class Channel {
     private final Lock merchRlock;
     private final Lock merchWlock;
 
-    public Channel(final int world, final int channel, long startTime, DropProvider dropProvider) {
+    public Channel(final int world, final int channel, long startTime, ChannelDependencies channelDependencies) {
         this.world = world;
         this.channel = channel;
-        this.dropProvider = dropProvider;
+        this.dropProvider = channelDependencies.dropProvider();
 
         this.ongoingStartTime = startTime + 10000;  // rude approach to a world's last channel boot time, placeholder for the 1st wedding reservation ever
         this.mapManager = new MapManager(null, world, channel, dropProvider);
@@ -124,7 +126,7 @@ public final class Channel {
         this.merchWlock = rwLock.writeLock();
 
         try {
-            this.channelServer = initServer(port, world, channel);
+            this.channelServer = initServer(port, world, channel, channelDependencies.characterSaver());
             expedType.addAll(Arrays.asList(ExpeditionType.values()));
 
             if (Server.getInstance().isOnline()) {  // postpone event loading to improve boot time... thanks Riizade, daronhudson for noticing slow startup times
@@ -152,8 +154,8 @@ public final class Channel {
         }
     }
 
-    private ChannelServer initServer(int port, int world, int channel) {
-        ChannelServer channelServer = new ChannelServer(port, world, channel);
+    private ChannelServer initServer(int port, int world, int channel, CharacterSaver characterSaver) {
+        ChannelServer channelServer = new ChannelServer(port, world, channel, characterSaver);
         channelServer.start();
         return channelServer;
     }

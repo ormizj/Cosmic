@@ -1,6 +1,7 @@
 package net.netty;
 
 import client.Client;
+import database.character.CharacterSaver;
 import io.netty.channel.socket.SocketChannel;
 import net.PacketProcessor;
 import net.server.Server;
@@ -14,7 +15,8 @@ public class ChannelServerInitializer extends ServerChannelInitializer {
     private final int world;
     private final int channel;
 
-    public ChannelServerInitializer(int world, int channel) {
+    public ChannelServerInitializer(int world, int channel, CharacterSaver characterSaver) {
+        super(characterSaver);
         this.world = world;
         this.channel = channel;
     }

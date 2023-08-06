@@ -34,6 +34,7 @@ import constants.id.MapId;
 import constants.inventory.ItemConstants;
 import constants.skills.*;
 import database.drop.DropProvider;
+import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.packet.Packet;
 import org.slf4j.Logger;
@@ -67,9 +68,7 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
 
         if (chr.getBuffEffect(BuffStat.MORPH) != null) {
             if (chr.getBuffEffect(BuffStat.MORPH).isMorphWithoutAttack()) {
-                // How are they attacking when the client won't let them?
-                chr.getClient().disconnect(false, false);
-                return;
+                throw new GameViolationException("Attempt to attack with morph skill that disallows attacking");
             }
         }
 
