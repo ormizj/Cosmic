@@ -27,7 +27,6 @@ import constants.id.MapId;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateEvent;
-import model.CharacterIdentity;
 import net.PacketHandler;
 import net.PacketProcessor;
 import net.netty.DisconnectException;
@@ -300,40 +299,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
     public AbstractPlayerInteraction getAbstractPlayerInteraction() {
         return new AbstractPlayerInteraction(this);
-    }
-
-    public void sendCharList(int server) {
-        this.sendPacket(PacketCreator.getCharList(this, server, 0));
-    }
-
-    public List<Character> loadCharacters(int serverId) {
-        List<Character> chars = new ArrayList<>(15);
-        try {
-            for (CharacterIdentity cni : loadCharactersInternal(serverId)) {
-                chars.add(Character.loadCharFromDB(cni.id(), this, false));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return chars;
-    }
-
-    private List<CharacterIdentity> loadCharactersInternal(int worldId) {
-        List<CharacterIdentity> chars = new ArrayList<>(15);
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT id, name FROM characters WHERE accountid = ? AND world = ?")) {
-            ps.setInt(1, this.getAccID());
-            ps.setInt(2, worldId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    chars.add(new CharacterIdentity(rs.getString("name"), rs.getInt("id")));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return chars;
     }
 
     public boolean isLoggedIn() {

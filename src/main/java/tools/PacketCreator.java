@@ -859,14 +859,11 @@ public class PacketCreator {
      * <br> 17: Wrong gateway or personal info<br>
      * <br> 21: Verify account via email<br>
      */
-    public static Packet getCharList(Client c, int serverId, int status) {
+    public static Packet getCharList(Client c, List<Character> chars, int status) {
         final OutPacket p = OutPacket.create(SendOpcode.CHARLIST);
         p.writeByte(status);
-        List<Character> chars = c.loadCharacters(serverId);
         p.writeByte((byte) chars.size());
-        for (Character chr : chars) {
-            addCharEntry(p, chr, false);
-        }
+        chars.forEach(chr -> addCharEntry(p, chr, false));
 
         p.writeByte(YamlConfig.config.server.ENABLE_PIC && !c.canBypassPic() ? (c.getPic() == null || c.getPic().equals("") ? 0 : 1) : 2);
         p.writeInt(YamlConfig.config.server.COLLECTIVE_CHARSLOT ? chars.size() + c.getAvailableCharacterSlots() : c.getCharacterSlots());
