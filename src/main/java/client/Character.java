@@ -10926,33 +10926,6 @@ public class Character extends AbstractCharacterObject {
         this.commandtext = text;
     }
 
-    public int getRewardPoints() {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT rewardpoints FROM accounts WHERE id=?;")) {
-            ps.setInt(1, accountid);
-            ResultSet resultSet = ps.executeQuery();
-            int point = -1;
-            if (resultSet.next()) {
-                point = resultSet.getInt(1);
-            }
-            return point;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public void setRewardPoints(int value) {
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement("UPDATE accounts SET rewardpoints=? WHERE id=?;")) {
-            ps.setInt(1, value);
-            ps.setInt(2, accountid);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void setReborns(int value) {
         if (!YamlConfig.config.server.USE_REBIRTH_SYSTEM) {
             yellowMessage("Rebirth system is not enabled!");
