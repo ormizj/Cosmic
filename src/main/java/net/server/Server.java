@@ -1497,11 +1497,8 @@ public class Server {
         }
     }
 
-    public SortedMap<Integer, List<Character>> loadAccountCharlist(int accountId, int visibleWorlds) {
+    public SortedMap<Integer, List<Character>> loadAccountCharlist(int accountId) {
         List<World> worlds = this.getWorlds();
-        if (worlds.size() > visibleWorlds) {
-            worlds = worlds.subList(0, visibleWorlds);
-        }
 
         SortedMap<Integer, List<Character>> worldChrs = new TreeMap<>();
         int chrTotal = 0;

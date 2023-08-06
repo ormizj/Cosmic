@@ -81,6 +81,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Client extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Client.class);
+    private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
 
     public static final int LOGIN_NOTLOGGEDIN = 0;
     public static final int LOGIN_SERVER_TRANSITION = 1;
@@ -122,7 +123,6 @@ public class Client extends ChannelInboundHandlerAdapter {
     private final Lock announcerLock = new ReentrantLock(true);
     // thanks Masterrulax & try2hack for pointing out a bottleneck issue with shared locks, shavit for noticing an opportunity for improvement
     private Calendar tempBanCalendar;
-    private int visibleWorlds;
     private long lastNpcClick;
     private long lastPacket = System.currentTimeMillis();
     private int lang = 0;
@@ -545,8 +545,7 @@ public class Client extends ChannelInboundHandlerAdapter {
             return true;
         }
 
-        pinattempt++;
-        if (pinattempt > 5) {
+        if (++pinattempt >= MAX_FAILED_LOGIN_ATTEMPTS) {
             SessionCoordinator.getInstance().closeSession(this, false);
         }
         if (pin.equals(other)) {
@@ -578,8 +577,7 @@ public class Client extends ChannelInboundHandlerAdapter {
             return true;
         }
 
-        picattempt++;
-        if (picattempt > 5) {
+        if (++picattempt >= MAX_FAILED_LOGIN_ATTEMPTS) {
             SessionCoordinator.getInstance().closeSession(this, false);
         }
         if (pic.equals(other)) {    // thanks ryantpayton (HeavenClient) for noticing null pics being checked here
@@ -593,8 +591,7 @@ public class Client extends ChannelInboundHandlerAdapter {
     public int login(String login, String pwd, Hwid hwid) {
         int loginok = 5;
 
-        loginattempt++;
-        if (loginattempt > 4) {
+        if (++loginattempt >= MAX_FAILED_LOGIN_ATTEMPTS) {
             loggedIn = false;
             SessionCoordinator.getInstance().closeSession(this, false);
             return 6;   // thanks Survival_Project for finding out an issue with AUTOMATIC_REGISTER here
@@ -1379,10 +1376,6 @@ public class Client extends ChannelInboundHandlerAdapter {
         return this.sessionId;
     }
 
-    public boolean canRequestCharlist() {
-        return lastNpcClick + 877 < Server.getInstance().getCurrentTime();
-    }
-
     public boolean canClickNPC() {
         return lastNpcClick + 500 < Server.getInstance().getCurrentTime();
     }
@@ -1393,15 +1386,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
     public void removeClickedNPC() {
         lastNpcClick = 0;
-    }
-
-    public int getVisibleWorlds() {
-        return visibleWorlds;
-    }
-
-    public void requestedServerlist(int worlds) {
-        visibleWorlds = worlds;
-        setClickedNPC();
     }
 
     public void closePlayerScriptInteractions() {
