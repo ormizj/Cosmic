@@ -76,8 +76,8 @@ import server.expeditions.ExpeditionBossLog;
 import server.life.PlayerNPCFactory;
 import server.quest.Quest;
 import server.shop.ShopFactory;
-import service.ChannelService;
 import service.NoteService;
+import service.TransitionService;
 import tools.DatabaseConnection;
 import tools.Pair;
 
@@ -982,17 +982,17 @@ public class Server {
         MonsterCardDao monsterCardDao = new MonsterCardDao(connection);
         CharacterLoader characterLoader = new CharacterLoader(monsterCardDao);
         CharacterSaver characterSaver = new CharacterSaver(monsterCardDao);
-        ChannelService channelService = new ChannelService(characterSaver);
+        TransitionService transitionService = new TransitionService(characterSaver);
         NoteService noteService = new NoteService(new NoteDao(connection));
         MakerProcessor makerProcessor = new MakerProcessor(new MakerInfoProvider(new MakerDao(connection)));
         FredrickProcessor fredrickProcessor = new FredrickProcessor(noteService);
         DropProvider dropProvider = new DropProvider(new DropDao(connection));
         ShopFactory shopFactory = new ShopFactory(new ShopDao(connection));
         CommandContext commandContext = new CommandContext(null, dropProvider, shopFactory,
-                characterSaver, channelService);
+                characterSaver, transitionService);
         CommandsExecutor commandsExecutor = new CommandsExecutor(commandContext);
         ChannelDependencies channelDependencies = new ChannelDependencies(characterLoader, characterSaver, noteService,
-                fredrickProcessor, makerProcessor, dropProvider, commandsExecutor, shopFactory, channelService);
+                fredrickProcessor, makerProcessor, dropProvider, commandsExecutor, shopFactory, transitionService);
 
         PacketProcessor.registerGameHandlerDependencies(channelDependencies);
 

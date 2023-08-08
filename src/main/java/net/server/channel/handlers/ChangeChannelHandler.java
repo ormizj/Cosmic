@@ -27,16 +27,16 @@ import net.AbstractPacketHandler;
 import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.server.Server;
-import service.ChannelService;
+import service.TransitionService;
 
 /**
  * @author Matze
  */
 public final class ChangeChannelHandler extends AbstractPacketHandler {
-    private final ChannelService channelService;
+    private final TransitionService transitionService;
 
-    public ChangeChannelHandler(ChannelService channelService) {
-        this.channelService = channelService;
+    public ChangeChannelHandler(TransitionService transitionService) {
+        this.transitionService = transitionService;
     }
 
     @Override
@@ -51,6 +51,6 @@ public final class ChangeChannelHandler extends AbstractPacketHandler {
             return;
         }
 
-        channelService.changeChannel(c, channel);
+        transitionService.changeChannel(c, channel);
     }
 }

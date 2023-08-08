@@ -305,6 +305,10 @@ public class Client extends ChannelInboundHandlerAdapter {
         return loggedIn;
     }
 
+    public boolean isInTransition() {
+        return serverTransition;
+    }
+
     public boolean hasBannedIP() {
         boolean ret = false;
         try (Connection con = DatabaseConnection.getConnection();
@@ -833,7 +837,7 @@ public class Client extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private synchronized boolean tryDisconnect() {
+    public synchronized boolean tryDisconnect() {
         if (disconnecting) {
             return false;
         }
@@ -924,7 +928,7 @@ public class Client extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void clear() {
+    public void clear() {
         // player hard reference removal thanks to Steve (kaito1410)
         if (this.player != null) {
             this.player.empty(true); // clears schedules and stuff

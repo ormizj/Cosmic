@@ -7,8 +7,8 @@ import database.character.CharacterLoader;
 import database.character.CharacterSaver;
 import database.drop.DropProvider;
 import server.shop.ShopFactory;
-import service.ChannelService;
 import service.NoteService;
+import service.TransitionService;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ import java.util.Objects;
 public record ChannelDependencies(
         CharacterLoader characterLoader, CharacterSaver characterSaver, NoteService noteService,
         FredrickProcessor fredrickProcessor, MakerProcessor makerProcessor, DropProvider dropProvider,
-        CommandsExecutor commandsExecutor, ShopFactory shopFactory, ChannelService channelService
+        CommandsExecutor commandsExecutor, ShopFactory shopFactory, TransitionService transitionService
 ) {
 
     public ChannelDependencies {
@@ -30,6 +30,6 @@ public record ChannelDependencies(
         Objects.requireNonNull(dropProvider);
         Objects.requireNonNull(commandsExecutor);
         Objects.requireNonNull(shopFactory);
-        Objects.requireNonNull(channelService);
+        Objects.requireNonNull(transitionService);
     }
 }

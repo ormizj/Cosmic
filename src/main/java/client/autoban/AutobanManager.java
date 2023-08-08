@@ -7,6 +7,7 @@ package client.autoban;
 
 import client.Character;
 import config.YamlConfig;
+import net.netty.GameViolationException;
 import net.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,11 +119,10 @@ public class AutobanManager {
         if (this.timestamp[type] == time) {
             this.timestampcounter[type]++;
             if (this.timestampcounter[type] >= times) {
-                if (YamlConfig.config.server.USE_AUTOBAN) {
-                    chr.getClient().disconnect(false, false);
-                }
-
                 log.info("Autoban - Chr {} was caught spamming TYPE {} and has been disconnected", chr, type);
+                if (YamlConfig.config.server.USE_AUTOBAN) {
+                    throw new GameViolationException("Auto ban");
+                }
             }
         } else {
             this.timestamp[type] = time;
