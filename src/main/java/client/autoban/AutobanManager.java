@@ -36,35 +36,27 @@ public class AutobanManager {
         this.chr = chr;
     }
 
-    public void addPoint(AutobanFactory fac, String reason) {
-        if (YamlConfig.config.server.USE_AUTOBAN) {
-            if (chr.isGM() || chr.isBanned()) {
-                return;
-            }
-
-            if (lastTime.containsKey(fac)) {
-                if (lastTime.get(fac) < (Server.getInstance().getCurrentTime() - fac.getExpire())) {
-                    points.put(fac, points.get(fac) / 2); //So the points are not completely gone.
-                }
-            }
-            if (fac.getExpire() != -1) {
-                lastTime.put(fac, Server.getInstance().getCurrentTime());
-            }
-
-            if (points.containsKey(fac)) {
-                points.put(fac, points.get(fac) + 1);
-            } else {
-                points.put(fac, 1);
-            }
-
-            if (points.get(fac) >= fac.getMaximum()) {
-                chr.autoban(reason);
+    /**
+     * @return true if the added point should result in an autoban
+     */
+    public boolean addPoint(AutobanFactory fac) {
+        if (lastTime.containsKey(fac)) {
+            if (lastTime.get(fac) < (Server.getInstance().getCurrentTime() - fac.getExpire())) {
+                points.put(fac, points.get(fac) / 2); //So the points are not completely gone.
             }
         }
-        if (YamlConfig.config.server.USE_AUTOBAN_LOG) {
-            // Lets log every single point too.
-            log.info("Autoban - chr {} caused {} {}", Character.makeMapleReadable(chr.getName()), fac.name(), reason);
+
+        if (fac.getExpire() != -1) {
+            lastTime.put(fac, Server.getInstance().getCurrentTime());
         }
+
+        if (points.containsKey(fac)) {
+            points.put(fac, points.get(fac) + 1);
+        } else {
+            points.put(fac, 1);
+        }
+
+        return points.get(fac) >= fac.getMaximum();
     }
 
     public void addMiss() {

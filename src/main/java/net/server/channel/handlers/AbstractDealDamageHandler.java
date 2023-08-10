@@ -44,6 +44,7 @@ import server.maps.MapItem;
 import server.maps.MapObject;
 import server.maps.MapObjectType;
 import server.maps.MapleMap;
+import service.BanService;
 import tools.PacketCreator;
 import tools.Randomizer;
 
@@ -56,12 +57,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
     private final DropProvider dropProvider;
+    private final BanService banService;
 
-    public AbstractDealDamageHandler(DropProvider dropProvider) {
+    public AbstractDealDamageHandler(DropProvider dropProvider, BanService banService) {
         this.dropProvider = dropProvider;
+        this.banService = banService;
     }
 
-    public static class AttackInfo {
+    public class AttackInfo {
 
         public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, stance, direction, rangedirection, charge, display;
         public Map<Integer, List<Integer>> allDamage;
@@ -85,7 +88,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
             }
             if (display > 80) { //Hmm
                 if (!mySkill.getAction()) {
-                    AutobanFactory.FAST_ATTACK.autoban(chr, "WZ Edit; adding action to a skill: " + display);
+                    banService.autoban(chr, AutobanFactory.FAST_ATTACK, "WZ Edit; adding action to a skill: " + display);
                     return null;
                 }
             }
@@ -115,7 +118,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                 }
 
                 if (player.getMp() < attackEffect.getMpCon()) {
-                    AutobanFactory.MPCON.addPoint(player.getAutobanManager(), "Skill: " + attack.skill + "; Player MP: " + player.getMp() + "; MP Needed: " + attackEffect.getMpCon());
+                    banService.addPoint(player, AutobanFactory.MPCON, "Skill: " + attack.skill + "; Player MP: " + player.getMp() + "; MP Needed: " + attackEffect.getMpCon());
                 }
 
                 int mobCount = attackEffect.getMobCount();
@@ -146,7 +149,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                 }
 
                 if (attack.numAttacked > mobCount) {
-                    AutobanFactory.MOB_COUNT.autoban(player, "Skill: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
+                    banService.autoban(player, AutobanFactory.MOB_COUNT, "Skill: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
                     return;
                 }
             }
@@ -419,7 +422,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                     if (attack.skill != 0) {
                         if (attackEffect.getFixDamage() != -1) {
                             if (totDamageToOneMonster != attackEffect.getFixDamage() && totDamageToOneMonster != 0) {
-                                AutobanFactory.FIX_DAMAGE.autoban(player, totDamageToOneMonster + " damage");
+                                banService.autoban(player, AutobanFactory.FIX_DAMAGE, totDamageToOneMonster + " damage");
                             }
 
                             int threeSnailsId = player.getJobType() * 10000000 + 1000;
@@ -852,7 +855,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
 
                 // Add a ab point if its over 5x what we calculated.
                 if (damage > maxWithCrit * 5) {
-                    AutobanFactory.DAMAGE_HACK.addPoint(chr.getAutobanManager(), "DMG: " + damage + " MaxDMG: " + maxWithCrit + " SID: " + ret.skill + " MobID: " + (monster != null ? monster.getId() : "null") + " Map: " + chr.getMap().getMapName() + " (" + chr.getMapId() + ")");
+                    banService.addPoint(chr, AutobanFactory.DAMAGE_HACK, "DMG: " + damage + " MaxDMG: " + maxWithCrit + " SID: " + ret.skill + " MobID: " + (monster != null ? monster.getId() : "null") + " Map: " + chr.getMap().getMapName() + " (" + chr.getMapId() + ")");
                 }
 
                 if (ret.skill == Marksman.SNIPE || (canCrit && damage > hitDmgMax)) {

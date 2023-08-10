@@ -40,6 +40,7 @@ import server.StatEffect;
 import server.life.Monster;
 import server.life.MonsterInformationProvider;
 import server.maps.Summon;
+import service.BanService;
 import tools.PacketCreator;
 
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ import java.util.List;
 public final class SummonDamageHandler extends AbstractDealDamageHandler {
     private static final Logger log = LoggerFactory.getLogger(SummonDamageHandler.class);
 
-    public SummonDamageHandler(DropProvider dropProvider) {
-        super(dropProvider);
+    public SummonDamageHandler(DropProvider dropProvider, BanService banService) {
+        super(dropProvider, banService);
     }
 
     public final class SummonAttackEntry {

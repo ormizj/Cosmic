@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.ItemInformationProvider;
 import server.StatEffect;
+import service.BanService;
 import tools.PacketCreator;
 import tools.Randomizer;
 
@@ -50,8 +51,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public final class RangedAttackHandler extends AbstractDealDamageHandler {
     private static final Logger log = LoggerFactory.getLogger(RangedAttackHandler.class);
 
-    public RangedAttackHandler(DropProvider dropProvider) {
-        super(dropProvider);
+    public RangedAttackHandler(DropProvider dropProvider, BanService banService) {
+        super(dropProvider, banService);
     }
 
     @Override

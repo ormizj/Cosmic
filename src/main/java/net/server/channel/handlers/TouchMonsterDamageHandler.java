@@ -26,11 +26,12 @@ import client.Character;
 import client.Client;
 import database.drop.DropProvider;
 import net.packet.InPacket;
+import service.BanService;
 
 public final class TouchMonsterDamageHandler extends AbstractDealDamageHandler {
 
-    public TouchMonsterDamageHandler(DropProvider dropProvider) {
-        super(dropProvider);
+    public TouchMonsterDamageHandler(DropProvider dropProvider, BanService banService) {
+        super(dropProvider, banService);
     }
 
     @Override

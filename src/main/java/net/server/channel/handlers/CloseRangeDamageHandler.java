@@ -31,6 +31,7 @@ import database.drop.DropProvider;
 import net.netty.GameViolationException;
 import net.packet.InPacket;
 import server.StatEffect;
+import service.BanService;
 import tools.PacketCreator;
 import tools.Pair;
 
@@ -42,8 +43,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
 
-    public CloseRangeDamageHandler(DropProvider dropProvider) {
-        super(dropProvider);
+    public CloseRangeDamageHandler(DropProvider dropProvider, BanService banService) {
+        super(dropProvider, banService);
     }
 
     @Override

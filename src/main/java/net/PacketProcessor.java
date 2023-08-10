@@ -156,9 +156,9 @@ public final class PacketProcessor {
                 channelDeps.noteService()));
         registerHandler(RecvOpcode.CHANGE_MAP, new ChangeMapHandler());
         registerHandler(RecvOpcode.MOVE_LIFE, new MoveLifeHandler());
-        registerHandler(RecvOpcode.CLOSE_RANGE_ATTACK, new CloseRangeDamageHandler(channelDeps.dropProvider()));
-        registerHandler(RecvOpcode.RANGED_ATTACK, new RangedAttackHandler(channelDeps.dropProvider()));
-        registerHandler(RecvOpcode.MAGIC_ATTACK, new MagicDamageHandler(channelDeps.dropProvider()));
+        registerHandler(RecvOpcode.CLOSE_RANGE_ATTACK, new CloseRangeDamageHandler(channelDeps.dropProvider(), channelDeps.banService()));
+        registerHandler(RecvOpcode.RANGED_ATTACK, new RangedAttackHandler(channelDeps.dropProvider(), channelDeps.banService()));
+        registerHandler(RecvOpcode.MAGIC_ATTACK, new MagicDamageHandler(channelDeps.dropProvider(), channelDeps.banService()));
         registerHandler(RecvOpcode.TAKE_DAMAGE, new TakeDamageHandler());
         registerHandler(RecvOpcode.MOVE_PLAYER, new MovePlayerHandler());
         registerHandler(RecvOpcode.USE_CASH_ITEM, new UseCashItemHandler(channelDeps.noteService(),
@@ -168,7 +168,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.USE_UPGRADE_SCROLL, new ScrollHandler());
         registerHandler(RecvOpcode.USE_SUMMON_BAG, new UseSummonBagHandler());
         registerHandler(RecvOpcode.FACE_EXPRESSION, new FaceExpressionHandler());
-        registerHandler(RecvOpcode.HEAL_OVER_TIME, new HealOvertimeHandler());
+        registerHandler(RecvOpcode.HEAL_OVER_TIME, new HealOvertimeHandler(channelDeps.banService()));
         registerHandler(RecvOpcode.ITEM_PICKUP, new ItemPickupHandler());
         registerHandler(RecvOpcode.CHAR_INFO_REQUEST, new CharInfoRequestHandler());
         registerHandler(RecvOpcode.SPECIAL_MOVE, new SpecialMoveHandler());
@@ -191,7 +191,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.ENTER_CASHSHOP, new EnterCashShopHandler(channelDeps.characterSaver()));
         registerHandler(RecvOpcode.DAMAGE_SUMMON, new DamageSummonHandler());
         registerHandler(RecvOpcode.MOVE_SUMMON, new MoveSummonHandler());
-        registerHandler(RecvOpcode.SUMMON_ATTACK, new SummonDamageHandler(channelDeps.dropProvider()));
+        registerHandler(RecvOpcode.SUMMON_ATTACK, new SummonDamageHandler(channelDeps.dropProvider(), channelDeps.banService()));
         registerHandler(RecvOpcode.BUDDYLIST_MODIFY, new BuddylistModifyHandler());
         registerHandler(RecvOpcode.USE_ITEMEFFECT, new UseItemEffectHandler());
         registerHandler(RecvOpcode.USE_CHAIR, new UseChairHandler());
@@ -227,7 +227,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.PET_EXCLUDE_ITEMS, new PetExcludeItemsHandler());
         registerHandler(RecvOpcode.OWL_ACTION, new UseOwlOfMinervaHandler());
         registerHandler(RecvOpcode.OWL_WARP, new OwlWarpHandler());
-        registerHandler(RecvOpcode.TOUCH_MONSTER_ATTACK, new TouchMonsterDamageHandler(channelDeps.dropProvider()));
+        registerHandler(RecvOpcode.TOUCH_MONSTER_ATTACK, new TouchMonsterDamageHandler(channelDeps.dropProvider(), channelDeps.banService()));
         registerHandler(RecvOpcode.TROCK_ADD_MAP, new TrockAddMapHandler());
         registerHandler(RecvOpcode.HIRED_MERCHANT_REQUEST, new HiredMerchantRequest());
         registerHandler(RecvOpcode.MOB_BANISH_PLAYER, new MobBanishPlayerHandler());
@@ -253,7 +253,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.ALLIANCE_OPERATION, new AllianceOperationHandler());
         registerHandler(RecvOpcode.DENY_ALLIANCE_REQUEST, new DenyAllianceRequestHandler());
         registerHandler(RecvOpcode.USE_SOLOMON_ITEM, new UseSolomonHandler());
-        registerHandler(RecvOpcode.USE_GACHA_EXP, new UseGachaExpHandler());
+        registerHandler(RecvOpcode.USE_GACHA_EXP, new UseGachaExpHandler(channelDeps.banService()));
         registerHandler(RecvOpcode.NEW_YEAR_CARD_REQUEST, new NewYearCardHandler());
         registerHandler(RecvOpcode.CASHSHOP_SURPRISE, new CashShopSurpriseHandler());
         registerHandler(RecvOpcode.USE_ITEM_REWARD, new ItemRewardHandler());

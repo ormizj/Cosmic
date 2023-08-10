@@ -34,14 +34,15 @@ import net.netty.GameViolationException;
 import net.packet.InPacket;
 import net.packet.Packet;
 import server.StatEffect;
+import service.BanService;
 import tools.PacketCreator;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public final class MagicDamageHandler extends AbstractDealDamageHandler {
 
-    public MagicDamageHandler(DropProvider dropProvider) {
-        super(dropProvider);
+    public MagicDamageHandler(DropProvider dropProvider, BanService banService) {
+        super(dropProvider, banService);
     }
     @Override
     public final void handlePacket(InPacket p, Client c) {
