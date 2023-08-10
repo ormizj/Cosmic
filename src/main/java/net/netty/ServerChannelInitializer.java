@@ -3,7 +3,6 @@ package net.netty;
 import client.Client;
 import config.YamlConfig;
 import constants.net.ServerConstants;
-import database.character.CharacterSaver;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -19,6 +18,7 @@ import net.packet.logging.OutPacketLogger;
 import net.server.coordinator.session.IpAddresses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.TransitionService;
 import tools.PacketCreator;
 
 import java.net.InetSocketAddress;
@@ -35,8 +35,8 @@ public abstract class ServerChannelInitializer extends ChannelInitializer<Socket
 
     static final AtomicLong sessionId = new AtomicLong(7777);
 
-    public ServerChannelInitializer(CharacterSaver characterSaver) {
-        this.disconnectingInboundHandler = new DisconnectHandler(characterSaver);
+    public ServerChannelInitializer(TransitionService transitionService) {
+        this.disconnectingInboundHandler = new DisconnectHandler(transitionService);
     }
 
     String getRemoteAddress(Channel channel) {

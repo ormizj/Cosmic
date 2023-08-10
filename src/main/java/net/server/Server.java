@@ -431,10 +431,8 @@ public class Server {
         String event_message = YamlConfig.config.worlds.get(i).event_message;
         String why_am_i_recommended = YamlConfig.config.worlds.get(i).why_am_i_recommended;
 
-        World world = new World(i,
-                flag,
-                event_message,
-                exprate, droprate, bossdroprate, mesorate, questrate, travelrate, fishingrate);
+        World world = new World(i, flag, event_message, exprate, droprate, bossdroprate, mesorate, questrate,
+                travelrate, fishingrate, channelDependencies.transitionService());
 
         Map<Integer, String> channelInfo = new HashMap<>();
         long bootTime = getCurrentTime();
@@ -928,7 +926,7 @@ public class Server {
             }
         }
 
-        loginServer = initLoginServer(8484, channelDependencies.characterSaver());
+        loginServer = initLoginServer(8484, channelDependencies.transitionService());
 
         log.info("Listening on port 8484");
 
@@ -999,8 +997,8 @@ public class Server {
         return channelDependencies;
     }
 
-    private LoginServer initLoginServer(int port, CharacterSaver characterSaver) {
-        LoginServer loginServer = new LoginServer(port, characterSaver);
+    private LoginServer initLoginServer(int port, TransitionService transitionService) {
+        LoginServer loginServer = new LoginServer(port, transitionService);
         loginServer.start();
         return loginServer;
     }
@@ -1898,7 +1896,7 @@ public class Server {
 
         for (Client c : toDisconnect) {    // thanks Lei for pointing a deadlock issue with srvLock
             if (c.isLoggedIn()) {
-                c.disconnect(false, false);
+                channelDependencies.transitionService().disconnect(c, false, false);
             } else {
                 SessionCoordinator.getInstance().closeSession(c, true);
             }

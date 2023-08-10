@@ -248,7 +248,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.SCRIPTED_ITEM, new ScriptedItemHandler());
         registerHandler(RecvOpcode.TOUCHING_REACTOR, new TouchReactorHandler());
         registerHandler(RecvOpcode.BEHOLDER, new BeholderHandler());
-        registerHandler(RecvOpcode.ADMIN_COMMAND, new AdminCommandHandler());
+        registerHandler(RecvOpcode.ADMIN_COMMAND, new AdminCommandHandler(channelDeps.transitionService()));
         registerHandler(RecvOpcode.ADMIN_LOG, new AdminLogHandler());
         registerHandler(RecvOpcode.ALLIANCE_OPERATION, new AllianceOperationHandler());
         registerHandler(RecvOpcode.DENY_ALLIANCE_REQUEST, new DenyAllianceRequestHandler());

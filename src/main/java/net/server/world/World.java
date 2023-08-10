@@ -53,6 +53,7 @@ import scripting.event.EventInstanceManager;
 import server.Storage;
 import server.TimerManager;
 import server.maps.*;
+import service.TransitionService;
 import tools.DatabaseConnection;
 import tools.PacketCreator;
 import tools.Pair;
@@ -161,7 +162,8 @@ public class World {
     private ScheduledFuture<?> timeoutSchedule;
     private ScheduledFuture<?> hpDecSchedule;
 
-    public World(int world, int flag, String eventmsg, int exprate, int droprate, int bossdroprate, int mesorate, int questrate, int travelrate, int fishingrate) {
+    public World(int world, int flag, String eventmsg, int exprate, int droprate, int bossdroprate, int mesorate,
+                 int questrate, int travelrate, int fishingrate, TransitionService transitionService) {
         this.id = world;
         this.flag = flag;
         this.eventmsg = eventmsg;
@@ -200,7 +202,7 @@ public class World {
         mapOwnershipSchedule = tman.register(new MapOwnershipTask(this), SECONDS.toMillis(20), SECONDS.toMillis(20));
         fishingSchedule = tman.register(new FishingTask(this), SECONDS.toMillis(10), SECONDS.toMillis(10));
         partySearchSchedule = tman.register(new PartySearchTask(this), SECONDS.toMillis(10), SECONDS.toMillis(10));
-        timeoutSchedule = tman.register(new TimeoutTask(this), SECONDS.toMillis(10), SECONDS.toMillis(10));
+        timeoutSchedule = tman.register(new TimeoutTask(this, transitionService), SECONDS.toMillis(10), SECONDS.toMillis(10));
         hpDecSchedule = tman.register(new CharacterHpDecreaseTask(this), YamlConfig.config.server.MAP_DAMAGE_OVERTIME_INTERVAL, YamlConfig.config.server.MAP_DAMAGE_OVERTIME_INTERVAL);
 
         if (YamlConfig.config.server.USE_FAMILY_SYSTEM) {

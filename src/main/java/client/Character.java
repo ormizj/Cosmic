@@ -42,6 +42,7 @@ import constants.id.MobId;
 import constants.inventory.ItemConstants;
 import constants.skills.*;
 import model.CharacterIdentity;
+import net.netty.GameViolationException;
 import net.packet.Packet;
 import net.server.PlayerBuffValueHolder;
 import net.server.PlayerCoolDownValueHolder;
@@ -1379,6 +1380,7 @@ public class Character extends AbstractCharacterObject {
         eventAfterChangedMap(this.getMapId());
     }
 
+    // Only used when entering Magic Door (Priest skill).
     public void changeMap(final MapleMap target, final Point pos) {
         canWarpCounter++;
 
@@ -8639,34 +8641,14 @@ public class Character extends AbstractCharacterObject {
         }
     }
 
-    public void sendPolice(int greason, String reason, int duration) {
-        sendPacket(PacketCreator.sendPolice(String.format("You have been blocked by the#b %s Police for %s.#k", "Cosmic", reason)));
-        this.isbanned = true;
-        TimerManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                client.disconnect(false, false);
-            }
-        }, duration);
-    }
-
     public void sendPolice(String text) {
         final String message = getName() + " received this - " + text;
+        log.info(message);
         if (Server.getInstance().isGmOnline(this.getWorld())) { //Alert and log if a GM is online
             Server.getInstance().broadcastGMMessage(this.getWorld(), PacketCreator.sendYellowTip(message));
         } else { //Auto DC and log if no GM is online
-            client.disconnect(false, false);
+            throw new GameViolationException(text);
         }
-        log.info(message);
-        //Server.getInstance().broadcastGMMessage(0, PacketCreator.serverNotice(1, getName() + " received this - " + text));
-        //sendPacket(PacketCreator.sendPolice(text));
-        //this.isbanned = true;
-        //TimerManager.getInstance().schedule(new Runnable() {
-        //    @Override
-        //    public void run() {
-        //        client.disconnect(false, false);
-        //    }
-        //}, 6000);
     }
 
     public void sendKeymap() {
@@ -10069,6 +10051,10 @@ public class Character extends AbstractCharacterObject {
 
     public boolean isBanned() {
         return isbanned;
+    }
+
+    public void setBanned() {
+        isbanned = true;
     }
 
     public List<Integer> getTrockMaps() {

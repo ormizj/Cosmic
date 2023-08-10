@@ -24,7 +24,6 @@ package net.server.channel;
 import client.Character;
 import config.YamlConfig;
 import constants.id.MapId;
-import database.character.CharacterSaver;
 import database.drop.DropProvider;
 import net.ChannelDependencies;
 import net.netty.ChannelServer;
@@ -45,6 +44,7 @@ import server.events.gm.Event;
 import server.expeditions.Expedition;
 import server.expeditions.ExpeditionType;
 import server.maps.*;
+import service.TransitionService;
 import tools.PacketCreator;
 import tools.Pair;
 
@@ -126,7 +126,7 @@ public final class Channel {
         this.merchWlock = rwLock.writeLock();
 
         try {
-            this.channelServer = initServer(port, world, channel, channelDependencies.characterSaver());
+            this.channelServer = initServer(port, world, channel, channelDependencies.transitionService());
             expedType.addAll(Arrays.asList(ExpeditionType.values()));
 
             if (Server.getInstance().isOnline()) {  // postpone event loading to improve boot time... thanks Riizade, daronhudson for noticing slow startup times
@@ -154,8 +154,8 @@ public final class Channel {
         }
     }
 
-    private ChannelServer initServer(int port, int world, int channel, CharacterSaver characterSaver) {
-        ChannelServer channelServer = new ChannelServer(port, world, channel, characterSaver);
+    private ChannelServer initServer(int port, int world, int channel, TransitionService transitionService) {
+        ChannelServer channelServer = new ChannelServer(port, world, channel, transitionService);
         channelServer.start();
         return channelServer;
     }

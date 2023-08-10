@@ -35,6 +35,7 @@ import tools.PacketCreator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 public class BanCommand extends Command {
     {
@@ -76,7 +77,10 @@ public class BanCommand extends Command {
             target.yellowMessage("Reason: " + reason);
             c.sendPacket(PacketCreator.getGMEffect(4, (byte) 0));
             final Character rip = target;
-            TimerManager.getInstance().schedule(() -> rip.getClient().disconnect(false, false), 5000); //5 Seconds
+            TimerManager.getInstance().schedule(
+                    () -> ctx.transitionService().disconnect(rip.getClient(), false, false),
+                    TimeUnit.SECONDS.toMillis(5)
+            );
             Server.getInstance().broadcastMessage(c.getWorld(), PacketCreator.serverNotice(6, "[RIP]: " + ign + " has been banned."));
         } else if (Character.ban(ign, reason, false)) {
             c.sendPacket(PacketCreator.getGMEffect(4, (byte) 0));

@@ -1,23 +1,23 @@
 package net.netty;
 
-import database.character.CharacterSaver;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import service.TransitionService;
 
 @Sharable
 public class DisconnectHandler extends ChannelInboundHandlerAdapter {
-    private final CharacterSaver characterSaver;
+    private final TransitionService transitionService;
 
-    public DisconnectHandler(CharacterSaver characterSaver) {
-        this.characterSaver = characterSaver;
+    public DisconnectHandler(TransitionService transitionService) {
+        this.transitionService = transitionService;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (cause instanceof DisconnectException de) {
             var client = de.getClient();
-            client.disconnect(true, false);
+            transitionService.disconnect(client, true, false);
         } else {
             ctx.fireExceptionCaught(cause);
         }

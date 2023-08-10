@@ -1,22 +1,22 @@
 package net.netty;
 
-import database.character.CharacterSaver;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import service.TransitionService;
 
 public class LoginServer extends AbstractServer {
     public static final int WORLD_ID = -1;
     public static final int CHANNEL_ID = -1;
 
-    private final CharacterSaver characterSaver;
+    private final TransitionService transitionService;
     private Channel channel;
 
-    public LoginServer(int port, CharacterSaver characterSaver) {
+    public LoginServer(int port, TransitionService transitionService) {
         super(port);
-        this.characterSaver = characterSaver;
+        this.transitionService = transitionService;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class LoginServer extends AbstractServer {
         ServerBootstrap bootstrap = new ServerBootstrap()
                 .group(parentGroup, childGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new LoginServerInitializer(characterSaver));
+                .childHandler(new LoginServerInitializer(transitionService));
 
         this.channel = bootstrap.bind(port).syncUninterruptibly().channel();
     }

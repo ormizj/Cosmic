@@ -41,14 +41,15 @@ public class DcCommand extends Command {
             return;
         }
 
-        Character victim = c.getWorldServer().getPlayerStorage().getCharacterByName(params[0]);
+        String chrName = params[0];
+        Character victim = c.getWorldServer().getPlayerStorage().getCharacterByName(chrName);
         if (victim == null) {
-            victim = c.getChannelServer().getPlayerStorage().getCharacterByName(params[0]);
+            victim = c.getChannelServer().getPlayerStorage().getCharacterByName(chrName);
             if (victim == null) {
-                victim = player.getMap().getCharacterByName(params[0]);
+                victim = player.getMap().getCharacterByName(chrName);
                 if (victim != null) {
                     try {//sometimes bugged because the map = null
-                        victim.getClient().disconnect(true, false);
+                        ctx.transitionService().disconnect(victim.getClient(), true, false);
                         player.getMap().removePlayer(victim);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -61,6 +62,6 @@ public class DcCommand extends Command {
         if (player.gmLevel() < victim.gmLevel()) {
             victim = player;
         }
-        victim.getClient().disconnect(false, false);
+        ctx.transitionService().disconnect(victim.getClient(), false, false);
     }
 }

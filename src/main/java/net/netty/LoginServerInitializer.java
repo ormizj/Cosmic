@@ -1,18 +1,18 @@
 package net.netty;
 
 import client.Client;
-import database.character.CharacterSaver;
 import io.netty.channel.socket.SocketChannel;
 import net.PacketProcessor;
 import net.server.coordinator.session.SessionCoordinator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.TransitionService;
 
 public class LoginServerInitializer extends ServerChannelInitializer {
     private static final Logger log = LoggerFactory.getLogger(LoginServerInitializer.class);
 
-    public LoginServerInitializer(CharacterSaver characterSaver) {
-        super(characterSaver);
+    public LoginServerInitializer(TransitionService transitionService) {
+        super(transitionService);
     }
 
     @Override
