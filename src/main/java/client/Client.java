@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client;
 
 import config.YamlConfig;
-import constants.game.GameConstants;
 import constants.id.MapId;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -1090,22 +1089,6 @@ public class Client extends ChannelInboundHandlerAdapter {
             e.printStackTrace();
         }
         return disconnect;
-    }
-
-    public void checkChar(int accid) {  /// issue with multiple chars from same account login found by shavit, resinate
-        if (!YamlConfig.config.server.USE_CHARACTER_ACCOUNT_CHECK) {
-            return;
-        }
-
-        for (World w : Server.getInstance().getWorlds()) {
-            for (Character chr : w.getPlayerStorage().getAllCharacters()) {
-                if (accid == chr.getAccountID()) {
-                    log.warn("Chr {} has been removed from world {}. Possible Dupe attempt.", chr.getName(), GameConstants.WORLD_NAMES[w.getId()]);
-                    chr.getClient().forceDisconnect();
-                    w.getPlayerStorage().removePlayer(chr.getId());
-                }
-            }
-        }
     }
 
     public void lockClient() {

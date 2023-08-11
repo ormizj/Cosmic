@@ -70,13 +70,14 @@ public final class Channel {
     private final int world;
     private final int channel;
 
-    private PlayerStorage players = new PlayerStorage();
+    private PlayerStorage players;
     private ChannelServer channelServer;
     private String serverMessage;
     private MapManager mapManager;
     private EventScriptManager eventSM;
     private ServicesManager services;
     private final DropProvider dropProvider;
+    private final TransitionService transitionService;
     private final Map<Integer, HiredMerchant> hiredMerchants = new HashMap<>();
     private final Map<Integer, Integer> storedVars = new HashMap<>();
     private final Set<Integer> playersAway = new HashSet<>();
@@ -115,6 +116,8 @@ public final class Channel {
         this.world = world;
         this.channel = channel;
         this.dropProvider = channelDependencies.dropProvider();
+        this.transitionService = channelDependencies.transitionService();
+        this.players = new PlayerStorage(channelDependencies.transitionService());
 
         this.ongoingStartTime = startTime + 10000;  // rude approach to a world's last channel boot time, placeholder for the 1st wedding reservation ever
         this.mapManager = new MapManager(null, world, channel, dropProvider);
@@ -341,7 +344,7 @@ public final class Channel {
         for (Integer cid : playersAway) {
             Character chr = wserv.getPlayerStorage().getCharacterById(cid);
             if (chr != null && chr.isLoggedin()) {
-                chr.getClient().forceDisconnect();
+                transitionService.forceDisconnect(chr.getClient());
             }
         }
     }

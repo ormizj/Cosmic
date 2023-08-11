@@ -98,7 +98,7 @@ public class World {
     private final Map<Integer, Integer> relationships = new HashMap<>();
     private final Map<Integer, Pair<Integer, Integer>> relationshipCouples = new HashMap<>();
     private final Map<Integer, GuildSummary> gsStore = new HashMap<>();
-    private PlayerStorage players = new PlayerStorage();
+    private PlayerStorage players;
     private final ServicesManager services = new ServicesManager(WorldServices.SAVE_CHARACTER);
     private final MatchCheckerCoordinator matchChecker = new MatchCheckerCoordinator();
     private final PartySearchCoordinator partySearch = new PartySearchCoordinator();
@@ -176,6 +176,8 @@ public class World {
         this.fishingrate = fishingrate;
         runningPartyId.set(1000000001); // partyid must not clash with charid to solve update item looting issues, found thanks to Vcoc
         runningMessengerId.set(1);
+
+        this.players = new PlayerStorage(transitionService);
 
         ReadWriteLock channelLock = new ReentrantReadWriteLock(true);
         this.chnRLock = channelLock.readLock();

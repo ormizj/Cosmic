@@ -118,7 +118,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.SERVERLIST_REREQUEST, new ServerlistRequestHandler());
         registerHandler(RecvOpcode.CHARLIST_REQUEST, new CharlistRequestHandler());
         registerHandler(RecvOpcode.CHAR_SELECT, new CharSelectedHandler());
-        registerHandler(RecvOpcode.LOGIN_PASSWORD, new LoginPasswordHandler());
+        registerHandler(RecvOpcode.LOGIN_PASSWORD, new LoginPasswordHandler(channelDeps.transitionService()));
         registerHandler(RecvOpcode.RELOG, new RelogRequestHandler());
         registerHandler(RecvOpcode.SERVERLIST_REQUEST, new ServerlistRequestHandler());
         registerHandler(RecvOpcode.SERVERSTATUS_REQUEST, new ServerStatusRequestHandler());
@@ -128,7 +128,7 @@ public final class PacketProcessor {
         registerHandler(RecvOpcode.VIEW_ALL_CHAR, new ViewAllCharHandler());
         registerHandler(RecvOpcode.PICK_ALL_CHAR, new ViewAllCharSelectedHandler());
         registerHandler(RecvOpcode.REGISTER_PIN, new RegisterPinHandler());
-        registerHandler(RecvOpcode.GUEST_LOGIN, new GuestLoginHandler());
+        registerHandler(RecvOpcode.GUEST_LOGIN, new GuestLoginHandler(channelDeps.transitionService()));
         registerHandler(RecvOpcode.REGISTER_PIC, new RegisterPicHandler());
         registerHandler(RecvOpcode.CHAR_SELECT_WITH_PIC, new CharSelectedWithPicHandler());
         registerHandler(RecvOpcode.SET_GENDER, new SetGenderHandler());
