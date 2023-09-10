@@ -23,8 +23,10 @@
  * @event: Henesys PQ
  */
 
+const config = require("../../config");
+
 var isPq = true;
-var minPlayers = 3, maxPlayers = 6;
+var minPlayers = config.USE_DISABLE_MIN_PLAYERS ? 1 : 3, maxPlayers = 6;
 var minLevel = 10, maxLevel = 255;
 var entryMap = 910010000;
 var exitMap = 910010300;
@@ -130,7 +132,7 @@ function setup(level, lobbyid) {
     return eim;
 }
 
-function afterSetup(eim) {}
+function afterSetup(eim) { }
 
 function respawnStages(eim) {
     eim.getInstanceMap(910010000).instanceMapRespawn();
@@ -158,7 +160,7 @@ function bunnyDefeated(eim) {
     end(eim);
 }
 
-function playerUnregistered(eim, player) {}
+function playerUnregistered(eim, player) { }
 
 function playerExit(eim, player) {
     eim.unregisterPlayer(player);
@@ -189,7 +191,7 @@ function changedLeader(eim, leader) {
     }
 }
 
-function playerDead(eim, player) {}
+function playerDead(eim, player) { }
 
 function playerRevive(eim, player) { // player presses ok on the death pop up.
     if (eim.isEventTeamLackingNow(true, minPlayers, player)) {
@@ -246,7 +248,7 @@ function clearPQ(eim) {
     eim.warpEventTeam(910010100);
 }
 
-function monsterKilled(mob, eim) {}
+function monsterKilled(mob, eim) { }
 
 function friendlyKilled(mob, eim) {
     if (mob.getId() == 9300061) {
@@ -275,9 +277,9 @@ function friendlyDamaged(eim, mob) {
     }
 }
 
-function allMonstersDead(eim) {}
+function allMonstersDead(eim) { }
 
-function cancelSchedule() {}
+function cancelSchedule() { }
 
-function dispose(eim) {}
+function dispose(eim) { }
 
