@@ -23,10 +23,8 @@
  * @event: Henesys PQ
  */
 
-const config = require("../../config");
-
 var isPq = true;
-var minPlayers = config.USE_DISABLE_MIN_PLAYERS ? 1 : 3, maxPlayers = 6;
+var minPlayers = 1, maxPlayers = 6;
 var minLevel = 10, maxLevel = 255;
 var entryMap = 910010000;
 var exitMap = 910010300;

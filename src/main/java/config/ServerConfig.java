@@ -121,8 +121,6 @@ public class ServerConfig {
     public boolean USE_ENABLE_SOLO_EXPEDITIONS;
     public boolean USE_ENABLE_DAILY_EXPEDITIONS;
     public boolean USE_ENABLE_RECALL_EVENT;
-    public boolean USE_DISABLE_MAX_LEVEL;
-    public boolean USE_DISABLE_MIN_PLAYERS;
 
     // Announcement Configuration
     public boolean USE_ANNOUNCE_SHOPITEMSOLD;

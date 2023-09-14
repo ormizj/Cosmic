@@ -270,8 +270,6 @@ server:
   USE_ENABLE_SOLO_EXPEDITIONS: false #Enables start expeditions with any number of players. This will also bypass all the Zakum prequest.
   USE_ENABLE_DAILY_EXPEDITIONS: false #Enables daily entry limitations in expeditions.
   USE_ENABLE_RECALL_EVENT: false #Enables a disconnected player to reaccess the last event instance they were in before logging out. Recall only works if the event isn't cleared or disposed yet. Suggestion thanks to Alisson (Goukken).
-  USE_DISABLE_MAX_LEVEL: true #Sets max level for every PQ to the max level
-  USE_DISABLE_MIN_PLAYERS: true #Sets the requirement minimum players for every PQ to 1
 
   #Announcement Configuration
   USE_ANNOUNCE_SHOPITEMSOLD: false #Automatic message sent to owner when an item from the Player Shop or Hired Merchant is sold.
