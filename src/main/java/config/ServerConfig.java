@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class ServerConfig {
 
-    //Database Configuration
+    // Database Configuration
     public String DB_URL_FORMAT;
     public String DB_HOST;
     public String DB_USER;
     public String DB_PASS;
     public int INIT_CONNECTION_POOL_TIMEOUT;
 
-    //Login Configuration
+    // Login Configuration
     public int WORLDS;
     public int WLDLIST_SIZE;
     public int CHANNEL_SIZE;
@@ -36,23 +36,25 @@ public class ServerConfig {
     public boolean COLLECTIVE_CHARSLOT;
     public boolean DETERRED_MULTICLIENT;
 
-    //Besides blocking logging in with several client sessions on the same machine, this also blocks suspicious login attempts for players that tries to login on an account using several diferent remote addresses.
+    // Besides blocking logging in with several client sessions on the same machine,
+    // this also blocks suspicious login attempts for players that tries to login on
+    // an account using several diferent remote addresses.
 
-    //Multiclient Coordinator Configuration
+    // Multiclient Coordinator Configuration
     public int MAX_ALLOWED_ACCOUNT_HWID;
     public int MAX_ACCOUNT_LOGIN_ATTEMPT;
     public int LOGIN_ATTEMPT_DURATION;
 
-    //Ip Configuration
+    // Ip Configuration
     public String HOST;
     public String LANHOST;
     public String LOCALHOST;
     public boolean GMSERVER;
 
-    //Other configuration
+    // Other configuration
     public boolean SHUTDOWNHOOK;
 
-    //Server Flags
+    // Server Flags
     public boolean USE_CUSTOM_KEYSET;
     public boolean USE_DEBUG;
     public boolean USE_DEBUG_SHOW_INFO_EQPEXP;
@@ -114,32 +116,32 @@ public class ServerConfig {
     public boolean USE_FISHING_SYSTEM;
     public boolean USE_NPCS_SCRIPTABLE;
 
-    //Events/PQs Configuration
+    // Events/PQs Configuration
     public boolean USE_OLD_GMS_STYLED_PQ_NPCS;
     public boolean USE_ENABLE_SOLO_EXPEDITIONS;
     public boolean USE_ENABLE_DAILY_EXPEDITIONS;
     public boolean USE_ENABLE_RECALL_EVENT;
 
-    //Announcement Configuration
+    // Announcement Configuration
     public boolean USE_ANNOUNCE_SHOPITEMSOLD;
     public boolean USE_ANNOUNCE_CHANGEJOB;
     public boolean USE_ANNOUNCE_NX_COUPON_LOOT;
 
-    //Cash Shop Configuration
+    // Cash Shop Configuration
     public boolean USE_JOINT_CASHSHOP_INVENTORY;
     public boolean USE_CLEAR_OUTDATED_COUPONS;
     public boolean ALLOW_CASHSHOP_NAME_CHANGE;
-    public boolean ALLOW_CASHSHOP_WORLD_TRANSFER;//Allows players to buy world transfers in the cash shop.
+    public boolean ALLOW_CASHSHOP_WORLD_TRANSFER;// Allows players to buy world transfers in the cash shop.
 
-    //Maker Configuration
+    // Maker Configuration
     public boolean USE_MAKER_PERMISSIVE_ATKUP;
     public boolean USE_MAKER_FEE_HEURISTICS;
 
-    //Custom Configuration
+    // Custom Configuration
     public boolean USE_ENABLE_CUSTOM_NPC_SCRIPT;
     public boolean USE_STARTER_MERGE;
 
-    //Commands Configuration
+    // Commands Configuration
     public boolean BLOCK_GENERATE_CASH_ITEM;
     public boolean USE_WHOLE_SERVER_RANKING;
 
@@ -152,7 +154,7 @@ public class ServerConfig {
     public float EXP_SPLIT_COMMON_MOD;
     public float PARTY_BONUS_EXP_RATE;
 
-    //Miscellaneous Configuration
+    // Miscellaneous Configuration
     public String TIMEZONE;
     public String CHARSET;
     public boolean USE_DISPLAY_NUMBERS_WITH_COMMA;
@@ -165,32 +167,33 @@ public class ServerConfig {
     public int MOB_REACTOR_REFRESH_TIME;
     public int PARTY_SEARCH_REENTRY_LIMIT;
     public long NAME_CHANGE_COOLDOWN;
-    public long WORLD_TRANSFER_COOLDOWN = NAME_CHANGE_COOLDOWN;//Cooldown for world tranfers, default is same as name change (30 days).
+    public long WORLD_TRANSFER_COOLDOWN = NAME_CHANGE_COOLDOWN;// Cooldown for world tranfers, default is same as name
+                                                               // change (30 days).
     public boolean INSTANT_NAME_CHANGE;
     public int REBIRTH_NPC_ID;
 
-    //Dangling Items/Locks Configuration
+    // Dangling Items/Locks Configuration
     public int ITEM_EXPIRE_TIME;
     public int KITE_EXPIRE_TIME;
     public int ITEM_MONITOR_TIME;
     public int LOCK_MONITOR_TIME;
 
-    //Map Monitor Configuration
+    // Map Monitor Configuration
     public int ITEM_EXPIRE_CHECK;
     public int ITEM_LIMIT_ON_MAP;
     public int MAP_VISITED_SIZE;
     public int MAP_DAMAGE_OVERTIME_INTERVAL;
     public int MAP_DAMAGE_OVERTIME_COUNT;
 
-    //Channel Mob Disease Monitor Configuration
+    // Channel Mob Disease Monitor Configuration
     public int MOB_STATUS_MONITOR_PROC;
     public int MOB_STATUS_MONITOR_LIFE;
     public int MOB_STATUS_AGGRO_PERSISTENCE;
     public int MOB_STATUS_AGGRO_INTERVAL;
     public boolean USE_AUTOAGGRO_NEARBY;
 
-    //Some Gameplay Enhancing Configurations
-    //Scroll Configuration
+    // Some Gameplay Enhancing Configurations
+    // Scroll Configuration
     public boolean USE_PERFECT_GM_SCROLL;
     public boolean USE_PERFECT_SCROLLING;
     public boolean USE_ENHANCED_CHSCROLL;
@@ -200,34 +203,34 @@ public class ServerConfig {
     public int CHSCROLL_STAT_RATE;
     public int CHSCROLL_STAT_RANGE;
 
-    //Beginner Skills Configuration
+    // Beginner Skills Configuration
     public boolean USE_ULTRA_NIMBLE_FEET;
     public boolean USE_ULTRA_RECOVERY;
     public boolean USE_ULTRA_THREE_SNAILS;
 
-    //Other Skills Configuration
+    // Other Skills Configuration
     public boolean USE_FULL_ARAN_SKILLSET;
     public boolean USE_FAST_REUSE_HERO_WILL;
     public boolean USE_ANTI_IMMUNITY_CRASH;
     public boolean USE_UNDISPEL_HOLY_SHIELD;
     public boolean USE_FULL_HOLY_SYMBOL;
 
-    //Character Configuration
+    // Character Configuration
     public boolean USE_ADD_SLOTS_BY_LEVEL;
     public boolean USE_ADD_RATES_BY_LEVEL;
     public boolean USE_STACK_COUPON_RATES;
     public boolean USE_PERFECT_PITCH;
 
-    //Quest Configuration
+    // Quest Configuration
     public boolean USE_QUEST_RATE;
 
-    //Quest Points Configuration
+    // Quest Points Configuration
     public int QUEST_POINT_REPEATABLE_INTERVAL;
     public int QUEST_POINT_REQUIREMENT;
     public int QUEST_POINT_PER_QUEST_COMPLETE;
     public int QUEST_POINT_PER_EVENT_CLEAR;
 
-    //Guild Configuration
+    // Guild Configuration
     public int CREATE_GUILD_MIN_PARTNERS;
     public int CREATE_GUILD_COST;
     public int CHANGE_EMBLEM_COST;
@@ -235,13 +238,13 @@ public class ServerConfig {
     public int EXPAND_GUILD_TIER_COST;
     public int EXPAND_GUILD_MAX_COST;
 
-    //Family Configuration
+    // Family Configuration
     public int FAMILY_REP_PER_KILL;
     public int FAMILY_REP_PER_BOSS_KILL;
     public int FAMILY_REP_PER_LEVELUP;
     public int FAMILY_MAX_GENERATIONS;
 
-    //Equipment Configuration
+    // Equipment Configuration
     public boolean USE_EQUIPMNT_LVLUP_SLOTS;
     public boolean USE_EQUIPMNT_LVLUP_POWER;
     public boolean USE_EQUIPMNT_LVLUP_CASH;
@@ -250,12 +253,12 @@ public class ServerConfig {
     public int MAX_EQUIPMNT_STAT;
     public int USE_EQUIPMNT_LVLUP;
 
-    //Map-Chair Configuration
+    // Map-Chair Configuration
     public boolean USE_CHAIR_EXTRAHEAL;
     public byte CHAIR_EXTRA_HEAL_MULTIPLIER;
     public int CHAIR_EXTRA_HEAL_MAX_DELAY;
 
-    //Player NPC Configuration
+    // Player NPC Configuration
     public int PLAYERNPC_INITIAL_X;
     public int PLAYERNPC_INITIAL_Y;
     public int PLAYERNPC_AREA_X;
@@ -264,31 +267,31 @@ public class ServerConfig {
     public boolean PLAYERNPC_ORGANIZE_AREA;
     public boolean PLAYERNPC_AUTODEPLOY;
 
-    //Pet Auto-Pot Configuration
+    // Pet Auto-Pot Configuration
     public boolean USE_COMPULSORY_AUTOPOT;
     public boolean USE_EQUIPS_ON_AUTOPOT;
     public double PET_AUTOHP_RATIO;
     public double PET_AUTOMP_RATIO;
 
-    //Pet & Mount Configuration
+    // Pet & Mount Configuration
     public byte PET_EXHAUST_COUNT;
     public byte MOUNT_EXHAUST_COUNT;
 
-    //Pet Hunger Configuration
+    // Pet Hunger Configuration
     public boolean PETS_NEVER_HUNGRY;
     public boolean GM_PETS_NEVER_HUNGRY;
 
-    //Event Configuration
+    // Event Configuration
     public int EVENT_MAX_GUILD_QUEUE;
     public long EVENT_LOBBY_DELAY;
 
-    //Dojo Configuration
+    // Dojo Configuration
     public boolean USE_FAST_DOJO_UPGRADE;
     public boolean USE_DEADLY_DOJO;
     public int DOJO_ENERGY_ATK;
     public int DOJO_ENERGY_DMG;
 
-    //Wedding Configuration
+    // Wedding Configuration
     public int WEDDING_RESERVATION_DELAY;
     public int WEDDING_RESERVATION_TIMEOUT;
     public int WEDDING_RESERVATION_INTERVAL;
@@ -296,7 +299,7 @@ public class ServerConfig {
     public int WEDDING_GIFT_LIMIT;
     public boolean WEDDING_BLESSER_SHOWFX;
 
-    //Buyback Configuration
+    // Buyback Configuration
     public boolean USE_BUYBACK_WITH_MESOS;
     public float BUYBACK_FEE;
     public float BUYBACK_LEVEL_STACK_FEE;
@@ -307,15 +310,15 @@ public class ServerConfig {
     // Login timeout by shavit
     public long TIMEOUT_DURATION;
 
-    //Event End Timestamp
+    // Event End Timestamp
     public long EVENT_END_TIMESTAMP;
 
-    //GM Security Configuration
+    // GM Security Configuration
     public int MINIMUM_GM_LEVEL_TO_TRADE;
     public int MINIMUM_GM_LEVEL_TO_USE_STORAGE;
     public int MINIMUM_GM_LEVEL_TO_USE_DUEY;
     public int MINIMUM_GM_LEVEL_TO_DROP;
 
-    //Custom NPC overrides. List of NPC IDs.
+    // Custom NPC overrides. List of NPC IDs.
     public Map<String, String> NPCS_SCRIPTABLE = new HashMap<>();
 }

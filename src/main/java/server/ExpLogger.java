@@ -20,7 +20,9 @@ public class ExpLogger {
     private static final short EXP_LOGGER_THREAD_SLEEP_DURATION_SECONDS = 60;
     private static final short EXP_LOGGER_THREAD_SHUTDOWN_WAIT_DURATION_MINUTES = 5;
 
-    public record ExpLogRecord(int worldExpRate, int expCoupon, long gainedExp, int currentExp,Timestamp expGainTime, int charid) {}
+    public record ExpLogRecord(int worldExpRate, int expCoupon, long gainedExp, int currentExp, Timestamp expGainTime,
+            int charid) {
+    }
 
     public static void putExpLogRecord(ExpLogRecord expLogRecord) {
         try {
@@ -43,7 +45,8 @@ public class ExpLogger {
         @Override
         public void run() {
             try (Connection con = DatabaseConnection.getConnection();
-                    PreparedStatement ps = con.prepareStatement("INSERT INTO characterexplogs (world_exp_rate, exp_coupon, gained_exp, current_exp, exp_gain_time, charid) VALUES (?, ?, ?, ?, ?, ?)")) {
+                    PreparedStatement ps = con.prepareStatement(
+                            "INSERT INTO characterexplogs (world_exp_rate, exp_coupon, gained_exp, current_exp, exp_gain_time, charid) VALUES (?, ?, ?, ?, ?, ?)")) {
 
                 List<ExpLogRecord> drainedExpLogs = new ArrayList<>();
                 expLoggerQueue.drainTo(drainedExpLogs);
@@ -63,11 +66,10 @@ public class ExpLogger {
         }
     };
 
-
     private static void startExpLogger() {
         schdExctr.schedule(saveExpLoggerToDBRunnable, EXP_LOGGER_THREAD_SLEEP_DURATION_SECONDS, SECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-           stopExpLogger();
+            stopExpLogger();
         }));
     }
 
