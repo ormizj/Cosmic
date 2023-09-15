@@ -21490,6 +21490,7 @@ CREATE TABLE IF NOT EXISTS `characterexplogs` (
     `exp_coupon` INT,
     `gained_exp` BIGINT,
     `current_exp` INT,
+    `current_lvl` INT,
     `exp_gain_time` DATETIME,
     `charid` int(11) NOT NULL,
     PRIMARY KEY (`id`),

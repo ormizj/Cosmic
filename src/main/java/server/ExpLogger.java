@@ -20,8 +20,8 @@ public class ExpLogger {
     private static final short EXP_LOGGER_THREAD_SLEEP_DURATION_SECONDS = 60;
     private static final short EXP_LOGGER_THREAD_SHUTDOWN_WAIT_DURATION_MINUTES = 5;
 
-    public record ExpLogRecord(int worldExpRate, int expCoupon, long gainedExp, int currentExp, Timestamp expGainTime,
-            int charid) {
+    public record ExpLogRecord(int worldExpRate, int expCoupon, long gainedExp, int currentExp, int currentLvl,
+            Timestamp expGainTime, int charid) {
     }
 
     public static void putExpLogRecord(ExpLogRecord expLogRecord) {
@@ -46,7 +46,7 @@ public class ExpLogger {
         public void run() {
             try (Connection con = DatabaseConnection.getConnection();
                     PreparedStatement ps = con.prepareStatement(
-                            "INSERT INTO characterexplogs (world_exp_rate, exp_coupon, gained_exp, current_exp, exp_gain_time, charid) VALUES (?, ?, ?, ?, ?, ?)")) {
+                            "INSERT INTO characterexplogs (world_exp_rate, exp_coupon, gained_exp, current_exp, current_lvl, exp_gain_time, charid) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
 
                 List<ExpLogRecord> drainedExpLogs = new ArrayList<>();
                 expLoggerQueue.drainTo(drainedExpLogs);
@@ -55,8 +55,9 @@ public class ExpLogger {
                     ps.setInt(2, expLogRecord.expCoupon);
                     ps.setLong(3, expLogRecord.gainedExp);
                     ps.setInt(4, expLogRecord.currentExp);
-                    ps.setTimestamp(5, expLogRecord.expGainTime);
-                    ps.setInt(6, expLogRecord.charid);
+                    ps.setInt(5, expLogRecord.currentLvl);
+                    ps.setTimestamp(6, expLogRecord.expGainTime);
+                    ps.setInt(7, expLogRecord.charid);
                     ps.addBatch();
                 }
                 ps.executeBatch();
