@@ -3192,8 +3192,6 @@ public class Character extends AbstractCharacterObject {
                 lastExpGainTime = System.currentTimeMillis();
 
                 if (YamlConfig.config.server.USE_EXP_GAIN_LOG && level != getMaxLevel()) {
-                    System.out.println("2");
-                    System.out.println(level);
                     ExpLogRecord expLogRecord = new ExpLogger.ExpLogRecord(
                             getWorldServer().getExpRate(),
                             expCoupon,
